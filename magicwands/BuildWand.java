@@ -10,6 +10,7 @@ import net.minecraft.block.BlockStationary;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public class BuildWand extends WandItem {
@@ -45,12 +46,12 @@ public class BuildWand extends WandItem {
 	@Override
 	public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, int idOrig, int id, int meta) {
 		if (id != info.id && (keys == BUILD_BOX || keys == BUILD_ROOM || keys == BUILD_FRAME || keys == BUILD_TORCHES)) {
-			error(entityplayer, clicked_current, "You can't do this! Corner blocks must be the same.");
+			error(entityplayer, clicked_current, "notsamecorner");
 			return false;
 		}
 		if (meta != info.meta && (keys == BUILD_BOX || keys == BUILD_ROOM || keys == BUILD_FRAME || keys == BUILD_TORCHES) && !(id == Block.cactus.blockID || id == Block.reed.blockID)) {
 			if ((id != Block.leaves.blockID) || ((meta & 3) != (info.meta & 3))) {
-				error(entityplayer, clicked_current, "You can't do this! Corner blocks must be EXACTLY the same.");
+				error(entityplayer, clicked_current, "notsamecorner");
 				return false;
 			}
 		}
@@ -132,7 +133,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage("No work to do.");
+					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -186,7 +187,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage("No work to do.");
+					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -244,7 +245,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage("No work to do.");
+					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -307,7 +308,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage("No work to do.");
+					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -331,7 +332,7 @@ public class BuildWand extends WandItem {
 			}
 		case BUILD_WATER:
 			if (!(reinforced || FREE)) {
-				error(entityplayer, clicked, "You need REINFORCED wand for water filling!");
+				error(entityplayer, clicked, "cantfillwater");
 				return false;
 			}
 			bucket = Item.bucketWater.itemID;
@@ -351,7 +352,7 @@ public class BuildWand extends WandItem {
 				}
 				if (neededItems == 0) {
 					if (!world.isRemote)
-						entityplayer.addChatMessage("No work to do.");
+						entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
 					return false;
 				}
 			}
@@ -385,12 +386,12 @@ public class BuildWand extends WandItem {
 				}
 				return true;
 			} else {
-				error(entityplayer, clicked, "You need two buckets of water.");
+				error(entityplayer, clicked, "toofewwater");
 			}
 			return false; // not enough items, aborting
 		case BUILD_LAVA:
 			if (!(reinforced || FREE)) {
-				error(entityplayer, clicked, "You need REINFORCED wand for lava filling!");
+				error(entityplayer, clicked, "cantfilllava");
 				return false;
 			}
 			bucket = Item.bucketLava.itemID;
@@ -409,7 +410,7 @@ public class BuildWand extends WandItem {
 				}
 				if (neededItems == 0) {
 					if (!world.isRemote)
-						entityplayer.addChatMessage("No work to do.");
+						entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
 					return false;
 				}
 			}
@@ -441,12 +442,12 @@ public class BuildWand extends WandItem {
 				}
 				return true;
 			} else {
-				error(entityplayer, clicked, "You don't have enough lava buckets.");
+				error(entityplayer, clicked, "toofewlava");
 			}
 			return false;
 		case BUILD_CAVES:
 			if (!(reinforced || FREE)) {
-				error(entityplayer, clicked, "You need REINFORCED wand for cave filling!");
+				error(entityplayer, clicked, "cantfillcave");
 				return false;
 			}
 			boolean underground = false;
@@ -473,11 +474,11 @@ public class BuildWand extends WandItem {
 			}
 			if (cnt > 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage(cnt + " blocks filled up with stone.");
+					entityplayer.addChatMessage(cnt + StatCollector.translateToLocal("result.wand.fill"));
 				return true;
 			} else {
 				if (!world.isRemote)
-					entityplayer.addChatMessage("No caves were found.");
+					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nocave"));
 				return false;
 			}
 		} // end of the long switch

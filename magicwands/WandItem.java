@@ -13,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public abstract class WandItem extends Item {
@@ -31,7 +32,7 @@ public abstract class WandItem extends Item {
 
 	/**
 	 * If block can be changed by the wand magic
-	 *
+	 * 
 	 * @param keys
 	 *            type of magic, as a key combination
 	 * @param blockAt
@@ -42,7 +43,7 @@ public abstract class WandItem extends Item {
 
 	/**
 	 * Perform the wand magic
-	 *
+	 * 
 	 * @param entityplayer
 	 *            player using the wand
 	 * @param world
@@ -68,14 +69,14 @@ public abstract class WandItem extends Item {
 
 	/**
 	 * Used by {@link #particles(World, WandCoord3D, int)} when effect type is 0
-	 *
+	 * 
 	 * @return array of R,G,B
 	 */
 	public abstract double[] getParticleColor();
 
 	/**
 	 * Check range of block against wand range of effect
-	 *
+	 * 
 	 * @param keys
 	 *            type of magic, as key combination
 	 * @param range
@@ -114,7 +115,7 @@ public abstract class WandItem extends Item {
 		WandCoord3D clicked_current = new WandCoord3D(i, j, k, id, meta);
 		// invalid blocks for building
 		if (isIncompatibleBlock(id)) {
-			error(entityplayer, clicked_current, "Can't build this block!");
+			error(entityplayer, clicked_current, "cantbuild");
 			return true;
 		}
 		if (!itemstack.hasTagCompound()) {
@@ -136,7 +137,7 @@ public abstract class WandItem extends Item {
 			clicked_current.writeToNBT(itemstack.stackTagCompound, "End");
 			// Some keys pressed - END BLOCK
 			if (!itemstack.stackTagCompound.getBoolean("Started")) {
-				error(entityplayer, clicked_current, "You didn't select the starting block!");
+				error(entityplayer, clicked_current, "nostart");
 				return true;
 			}
 			// find the smaller coords
@@ -145,7 +146,7 @@ public abstract class WandItem extends Item {
 			WandCoord3D End = clicked_current.copy();
 			WandCoord3D.findEnds(Start, End);
 			if (isTooFar(Start, End, keys, MagicWands.free || entityplayer.capabilities.isCreativeMode)) {
-				error(entityplayer, clicked_current, "That's too far!");
+				error(entityplayer, clicked_current, "toofar");
 				return true;
 			}
 			boolean damage = false;
@@ -193,7 +194,7 @@ public abstract class WandItem extends Item {
 			}
 		}
 		if (neededItems > invItems) {
-			error(entityplayer, clicked, "You don't have enough items (needed " + neededItems + ", you have " + (invItems > 0 ? "only " : "") + invItems + ").");
+			error(entityplayer, clicked, "toofewitems (needed " + neededItems + ", you have " + invItems + ").");
 			return false; // abort
 		}
 		// remove blocks from inventory, highest positions first (quickbar last)
@@ -217,7 +218,7 @@ public abstract class WandItem extends Item {
 	/**
 	 * Perform error warning in various form: sound effect, error message in
 	 * chat, and particles
-	 *
+	 * 
 	 * @param entityplayer
 	 *            player to warn
 	 * @param pos
@@ -228,7 +229,7 @@ public abstract class WandItem extends Item {
 	protected void error(EntityPlayer entityplayer, WandCoord3D pos, String reason) {
 		entityplayer.worldObj.playSoundEffect(pos.x, pos.y, pos.z, "damage.fallsmall", (entityplayer.worldObj.rand.nextFloat() + 0.7F) / 2.0F, 0.5F + entityplayer.worldObj.rand.nextFloat() * 0.3F);
 		if (!entityplayer.worldObj.isRemote)
-			entityplayer.addChatMessage(reason);
+			entityplayer.addChatMessage(StatCollector.translateToLocal("error.wand." + reason));
 		particles(entityplayer.worldObj, pos.x, pos.y, pos.z, 3);
 		return;
 	}
@@ -236,7 +237,7 @@ public abstract class WandItem extends Item {
 	/**
 	 * First check for block compatibility with the wand power. Overridden in
 	 * {@link BuildWand}
-	 *
+	 * 
 	 * @param id
 	 *            the block id to check
 	 * @return true if the wand can't interact with this block
@@ -247,7 +248,7 @@ public abstract class WandItem extends Item {
 
 	/**
 	 * Spawn particles near coordinates, depending on effect type
-	 *
+	 * 
 	 * @param effect
 	 *            0 - wand, 1 - smoke, 2 - splash, other - reddust
 	 */

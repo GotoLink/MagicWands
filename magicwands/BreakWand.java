@@ -5,6 +5,7 @@ import net.minecraft.block.BlockFlower;
 import net.minecraft.block.BlockFluid;
 import net.minecraft.block.BlockStationary;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public class BreakWand extends WandItem {
@@ -71,7 +72,7 @@ public class BreakWand extends WandItem {
 		}
 		if (cnt == 0) {
 			if (!world.isRemote)
-				entityplayer.addChatMessage("No work to do.");
+				entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
 			return false;
 		}
 		for (X = start.x; X <= end.x; X++) {

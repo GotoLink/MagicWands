@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public class MineWand extends WandItem {
@@ -94,7 +95,7 @@ public class MineWand extends WandItem {
 			}
 			int max = (reinforced || FREE) ? 1024 : 512;
 			if (blocks2Dig - max > 10) {// 10 blocks tolerance
-				error(entityplayer, clicked, "Too many blocks to dig (" + blocks2Dig + ", limit = " + max + ").");
+				error(entityplayer, clicked, "toomanytodig (" + blocks2Dig + ", limit = " + max + ").");
 				return true;
 			}
 			// harvesting the ores
@@ -125,7 +126,7 @@ public class MineWand extends WandItem {
 			}
 			if (cnt == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage("No ores found.");
+					entityplayer.addChatMessage(StatCollector.translateToLocal("result.wand.mine"));
 				return false;
 			}
 			return true;
@@ -147,13 +148,13 @@ public class MineWand extends WandItem {
 			}
 		}
 		if (blocks2Dig >= (reinforced || FREE ? 1024 : 512)) {
-			error(entityplayer, clicked, "Too many blocks to dig (" + blocks2Dig + ", limit = " + Integer.toString((reinforced || FREE ? 1024 : 512)) + ").");
+			error(entityplayer, clicked, "toomanytodig (" + blocks2Dig + ", limit = " + Integer.toString((reinforced || FREE ? 1024 : 512)) + ").");
 			return false;
 		}
 		// now the mining itself.
 		if (blocks2Dig == 0) {
 			if (!world.isRemote)
-				entityplayer.addChatMessage("No work to do.");
+				entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
 			return false;
 		}
 		for (X = start.x; X <= end.x; X++) {

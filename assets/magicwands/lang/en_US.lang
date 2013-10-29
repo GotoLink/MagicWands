@@ -24,3 +24,23 @@ help.mine.key1=mine ALL
 help.mine.key2=mine only DIRT, SAND, GRAVEL etc.
 help.mine.key3=mine only WOOD
 help.mine.key1.2=mining ORES from surface
+
+message.wand.nowork=No work to do.
+message.wand.nocave=No caves were found.
+
+result.wand.fill= blocks filled up with stone.
+result.wand.mine=No ores found.
+
+error.wand.cantbuild=Can't build this block!
+error.wand.nostart=You didn't select the starting block!
+error.wand.toofar=That's too far!
+error.wand.toofewitems=You don't have enough items
+error.wand.notsamecorner=You can't do this! Corner blocks must be the same.
+
+error.wand.cantfillcave=You need REINFORCED wand for cave filling!
+error.wand.cantfilllava=You need REINFORCED wand for lava filling!
+error.wand.cantfillwater=You need REINFORCED wand for water filling!
+error.wand.toofewlava=You don't have enough lava buckets.
+error.wand.toofewwater=You need two buckets of water.
+
+error.wand.toomanytodig=Too many blocks to dig
