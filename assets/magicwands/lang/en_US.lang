@@ -1,0 +1,26 @@
+﻿
+itemGroup.MagicWands=Magic Wands
+
+item.buwand.name=Building Wand
+item.brwand.name=Breaking Wand
+item.miwand.name=Mining Wand
+item.rbuwand.name=Reinforced Building Wand
+item.rbrwand.name=Reinforced Breaking Wand
+item.rmiwand.name=Reinforced Mining Wand
+
+help.build.key1=FULL box
+help.build.key2=EMPTY room
+help.build.key3=FRAME (good for fence)
+help.build.key1.3=TORCHES (anti-monster)
+help.rbuild.key1.2=building WATER
+help.rbuild.key2.3=filling CAVES with stone
+help.rbuild.key1.2.3=building LAVA
+
+help.break.key1=break all but ORES
+help.break.key2=break ALL
+help.break.key3=remove LIQUIDS (lava, water) and PLANTS
+
+help.mine.key1=mine ALL
+help.mine.key2=mine only DIRT, SAND, GRAVEL etc.
+help.mine.key3=mine only WOOD
+help.mine.key1.2=mining ORES from surface

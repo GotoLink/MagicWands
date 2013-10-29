@@ -13,7 +13,6 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -24,7 +23,13 @@ public class MagicWands {
 	public static boolean[] allow = new boolean[3];
 	public static Item Break, Build, Mine, rBreak, rBuild, rMine;
 	public static String[] ores, spare;
-	public static CreativeTabs wands = new CreativeTabWands("MagicWands");
+	public static final CreativeTabs wands = new CreativeTabs("MagicWands") {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public int getTabIconItemIndex() {
+			return MagicWands.Break.itemID;
+		}
+	};
 
 	@EventHandler
 	public void load(FMLInitializationEvent event) {
@@ -73,8 +78,8 @@ public class MagicWands {
 		Configuration conf = new Configuration(event.getSuggestedConfigurationFile());
 		conf.load();
 		int i = 0;
-		for(String s :new String[]{"Building_Wands","Breaking_Wands","Mining_Wands"}){
-			allow[i] = conf.get("Safety", "Enable_"+s, true).getBoolean(false);
+		for (String s : new String[] { "Building_Wands", "Breaking_Wands", "Mining_Wands" }) {
+			allow[i] = conf.get("Safety", "Enable_" + s, true).getBoolean(false);
 			i++;
 		}
 		Build = new BuildWand(conf.getItem("BuildingWand", 9301).getInt(), false).setUnlocalizedName("buwand").setTextureName("MagicWands:wandbuild");
@@ -96,12 +101,6 @@ public class MagicWands {
 
 	@SideOnly(Side.CLIENT)
 	private void registerClientSideThings() {
-		LanguageRegistry.addName(Build, "Building Wand");
-		LanguageRegistry.addName(Break, "Breaking Wand");
-		LanguageRegistry.addName(Mine, "Mining Wand");
-		LanguageRegistry.addName(rBuild, "Reinforced Building Wand");
-		LanguageRegistry.addName(rBreak, "Reinforced Breaking Wand");
-		LanguageRegistry.addName(rMine, "Reinforced Mining Wand");
 		KeyBindingRegistry.registerKeyBinding(new WandKeyHandler());
 	}
 }

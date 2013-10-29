@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.StatCollector;
 
 import org.lwjgl.input.Keyboard;
 
@@ -70,31 +71,30 @@ public class WandKeyHandler extends KeyHandler {
 	// control - help
 	public void printHelp(EntityPlayer player, WandItem wand) {
 		if (wand instanceof BuildWand) {
-			player.addChatMessage("=== " + (wand.reinforced ? "Reinforced " : "") + "Building Wand ===");
-			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + " - FULL box");
-			player.addChatMessage(Keyboard.getKeyName(key_2.keyCode) + " - EMPTY room");
-			player.addChatMessage(Keyboard.getKeyName(key_3.keyCode) + " - FRAME (good for fence)");
+			player.addChatMessage("=== " + StatCollector.translateToLocal(wand.reinforced ? "item.rbuwand.name" : "item.buwand.name") + " ===");
+			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + " - " + StatCollector.translateToLocal("help.build.key1"));
+			player.addChatMessage(Keyboard.getKeyName(key_2.keyCode) + " - " + StatCollector.translateToLocal("help.build.key2"));
+			player.addChatMessage(Keyboard.getKeyName(key_3.keyCode) + " - " + StatCollector.translateToLocal("help.build.key3"));
 			if (wand.reinforced) {
-				player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + "+" + Keyboard.getKeyName(key_2.keyCode) + " - building WATER");
+				player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + "+" + Keyboard.getKeyName(key_2.keyCode) + " - " + StatCollector.translateToLocal("help.rbuild.key1.2"));
+				player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + "+" + Keyboard.getKeyName(key_2.keyCode) + "+" + Keyboard.getKeyName(key_3.keyCode) + " - "
+						+ StatCollector.translateToLocal("help.rbuild.key1.2.3"));
 			}
+			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + "+" + Keyboard.getKeyName(key_3.keyCode) + " - " + StatCollector.translateToLocal("help.build.key1.3"));
 			if (wand.reinforced) {
-				player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + "+" + Keyboard.getKeyName(key_2.keyCode) + "+" + Keyboard.getKeyName(key_3.keyCode) + " - building LAVA");
-			}
-			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + "+" + Keyboard.getKeyName(key_3.keyCode) + " - TORCHES (anti-monster)");
-			if (wand.reinforced) {
-				player.addChatMessage(Keyboard.getKeyName(key_2.keyCode) + "+" + Keyboard.getKeyName(key_3.keyCode) + " - filling CAVES with stone");
+				player.addChatMessage(Keyboard.getKeyName(key_2.keyCode) + "+" + Keyboard.getKeyName(key_3.keyCode) + " - " + StatCollector.translateToLocal("help.rbuild.key2.3"));
 			}
 		} else if (wand instanceof BreakWand) {
-			player.addChatMessage("=== " + (wand.reinforced ? "Reinforced " : "") + "Breaking Wand ===");
-			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + " - break all but ORES");
-			player.addChatMessage(Keyboard.getKeyName(key_2.keyCode) + " - break ALL");
-			player.addChatMessage(Keyboard.getKeyName(key_3.keyCode) + " - remove LIQUIDS (lava, water) and PLANTS");
+			player.addChatMessage("=== " + StatCollector.translateToLocal(wand.reinforced ? "item.rbrwand.name" : "item.brwand.name") + " ===");
+			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + " - " + StatCollector.translateToLocal("help.break.key1"));
+			player.addChatMessage(Keyboard.getKeyName(key_2.keyCode) + " - " + StatCollector.translateToLocal("help.break.key2"));
+			player.addChatMessage(Keyboard.getKeyName(key_3.keyCode) + " - " + StatCollector.translateToLocal("help.break.key3"));
 		} else if (wand instanceof MineWand) {
-			player.addChatMessage("=== " + (wand.reinforced ? "Reinforced " : "") + "Mining Wand ===");
-			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + " - mine ALL");
-			player.addChatMessage(Keyboard.getKeyName(key_2.keyCode) + " - mine only DIRT, SAND, GRAVEL etc.");
-			player.addChatMessage(Keyboard.getKeyName(key_3.keyCode) + " - mine only WOOD");
-			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + "+" + Keyboard.getKeyName(key_2.keyCode) + " - mining ORES from surface");
+			player.addChatMessage("=== " + StatCollector.translateToLocal(wand.reinforced ? "item.rmiwand.name" : "item.miwand.name") + " ===");
+			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + " - " + StatCollector.translateToLocal("help.mine.key1"));
+			player.addChatMessage(Keyboard.getKeyName(key_2.keyCode) + " - " + StatCollector.translateToLocal("help.mine.key2"));
+			player.addChatMessage(Keyboard.getKeyName(key_3.keyCode) + " - " + StatCollector.translateToLocal("help.mine.key3"));
+			player.addChatMessage(Keyboard.getKeyName(key_1.keyCode) + "+" + Keyboard.getKeyName(key_2.keyCode) + " - " + StatCollector.translateToLocal("help.mine.key1.2"));
 		}
 	}
 
