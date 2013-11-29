@@ -17,8 +17,8 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public abstract class WandItem extends Item {
-	static ArrayList m_ores = new ArrayList();
-	static ArrayList ores = new ArrayList();
+	static ArrayList<Integer> m_ores = new ArrayList<Integer>();
+	static ArrayList<Integer> ores = new ArrayList<Integer>();
 	public boolean reinforced;
 	static Random rand = new Random();
 
