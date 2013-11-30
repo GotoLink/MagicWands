@@ -33,24 +33,6 @@ public class MagicWands {
 
 	@EventHandler
 	public void load(FMLInitializationEvent event) {
-		if (allow[0]) {
-			GameRegistry.registerItem(Build, "BuildWand");
-			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Build), "pGp", "pGp", "pGp", 'p', "plankWood", 'G', Item.ingotGold));
-			GameRegistry.registerItem(rBuild, "RBuildWand");
-			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(rBuild), "oGo", "oGo", "oGo", 'o', Block.obsidian, 'G', Block.blockGold));
-		}
-		if (allow[1]) {
-			GameRegistry.registerItem(Break, "BreakWand");
-			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Break), "pIp", "pIp", "pIp", 'p', "plankWood", 'I', Item.ingotIron));
-			GameRegistry.registerItem(rBreak, "RBreakWand");
-			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(rBreak), "oIo", "oIo", "oIo", 'o', Block.obsidian, 'I', Block.blockIron));
-		}
-		if (allow[2]) {
-			GameRegistry.registerItem(Mine, "MineWand");
-			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Mine), "pDp", "pDp", "pDp", 'p', "plankWood", 'D', Item.diamond));
-			GameRegistry.registerItem(rMine, "RMineWand");
-			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(rMine), "oDo", "oDo", "oDo", 'o', Block.obsidian, 'D', Block.blockDiamond));
-		}
 		// parsing ore list
 		if (spare.length > 0) {
 			for (String u : spare) {
@@ -96,6 +78,24 @@ public class MagicWands {
 		ores = conf.get("BLOCKS", "Mining_wand_ores_for_surface_mining", "14,15,16,21,56,73,74").getString().split(",");
 		if (conf.hasChanged()) {
 			conf.save();
+		}
+		if (allow[0]) {
+			GameRegistry.registerItem(Build, "BuildWand");
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Build), "pGp", "pGp", "pGp", 'p', "plankWood", 'G', Item.ingotGold));
+			GameRegistry.registerItem(rBuild, "RBuildWand");
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(rBuild), "oGo", "oGo", "oGo", 'o', Block.obsidian, 'G', Block.blockGold));
+		}
+		if (allow[1]) {
+			GameRegistry.registerItem(Break, "BreakWand");
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Break), "pIp", "pIp", "pIp", 'p', "plankWood", 'I', Item.ingotIron));
+			GameRegistry.registerItem(rBreak, "RBreakWand");
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(rBreak), "oIo", "oIo", "oIo", 'o', Block.obsidian, 'I', Block.blockIron));
+		}
+		if (allow[2]) {
+			GameRegistry.registerItem(Mine, "MineWand");
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Mine), "pDp", "pDp", "pDp", 'p', "plankWood", 'D', Item.diamond));
+			GameRegistry.registerItem(rMine, "RMineWand");
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(rMine), "oDo", "oDo", "oDo", 'o', Block.obsidian, 'D', Block.blockDiamond));
 		}
 	}
 
