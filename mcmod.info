@@ -1,0 +1,17 @@
+[
+{
+"modid": "MagicWands",
+"name": "MagicWands",
+"description": "Use Magic to Mine, Break, and Build stuff!",
+"version": "1.0.0",
+"credits": "",
+"logoFile": "",
+"mcversion": "",
+"url": "http://www.planetminecraft.com/mod/magicwands/",
+"updateUrl": "",
+"authors": ["MightyPork","GotoLink"],
+"parent":"",
+"screenshots": [],
+"dependencies": []
+}
+]
