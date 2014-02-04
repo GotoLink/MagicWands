@@ -1,22 +1,34 @@
 package magicwands;
 
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 
 public class WandCoord3D {
-	public int x, y, z, id, meta;
+	public int x, y, z, meta;
+    public Block id;
 
 	public WandCoord3D() {
-		this(0, 0, 0, 0, 0);
+		this(0, 0, 0, Blocks.air, 0);
 	}
 
-	public WandCoord3D(int i, int j, int k, int ID, int met) {
-		x = i;
-		y = j;
-		z = k;
+    public WandCoord3D(int i, int j, int k, int met){
+        x = i;
+        y = j;
+        z = k;
+        meta = met;
+    }
+
+	public WandCoord3D(int i, int j, int k, Block ID, int met) {
+        this(i,j,k,met);
 		id = ID;
-		meta = met;
 	}
+
+    public WandCoord3D(int i, int j, int k, int ID, int met) {
+        this(i,j,k,met);
+        id = Block.func_149729_e(ID);
+    }
 
 	public WandCoord3D(WandCoord3D a) {
 		this(a.x, a.y, a.z, a.id, a.meta);
@@ -59,9 +71,9 @@ public class WandCoord3D {
 
 	public void writeToNBT(NBTTagCompound compound, String key) {
 		if (!compound.hasKey("Coord3d")) {
-			compound.setCompoundTag("Coord3d", new NBTTagCompound());
+			compound.setTag("Coord3d", new NBTTagCompound());
 		}
-		compound.getCompoundTag("Coord3d").setIntArray(key, new int[] { x, y, z, id, meta });
+		compound.getCompoundTag("Coord3d").setIntArray(key, new int[] { x, y, z, Block.func_149682_b(id), meta });
 	}
 
 	public static void findEnds(WandCoord3D a, WandCoord3D b) {

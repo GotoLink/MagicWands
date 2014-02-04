@@ -3,27 +3,24 @@ package magicwands;
 import java.util.ArrayList;
 import java.util.Random;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockFlower;
-import net.minecraft.block.BlockHalfSlab;
-import net.minecraft.block.BlockRedstoneOre;
-import net.minecraft.block.BlockStairs;
-import net.minecraft.block.BlockTorch;
+import net.minecraft.block.*;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
 public abstract class WandItem extends Item {
-	static ArrayList<Integer> m_ores = new ArrayList<Integer>();
-	static ArrayList<Integer> ores = new ArrayList<Integer>();
+	static ArrayList<Block> m_ores = new ArrayList<Block>();
+	static ArrayList<Block> ores = new ArrayList<Block>();
 	public boolean reinforced;
 	static Random rand = new Random();
 
-	public WandItem(int i, boolean reinforced) {
-		super(i);
+	public WandItem(boolean reinforced) {
+		super();
 		setCreativeTab(MagicWands.wands);
 		setMaxStackSize(1);
 		this.reinforced = reinforced;
@@ -36,10 +33,10 @@ public abstract class WandItem extends Item {
 	 * @param keys
 	 *            type of magic, as a key combination
 	 * @param blockAt
-	 *            the block id
-	 * @return true if magic can be performed on the block id
+	 *            the block
+	 * @return true if magic can be performed on the block
 	 */
-	public abstract boolean canAlter(int keys, int blockAt);
+	public abstract boolean canAlter(int keys, Block blockAt);
 
 	/**
 	 * Perform the wand magic
@@ -58,14 +55,14 @@ public abstract class WandItem extends Item {
 	 * @param keys
 	 *            type of magic, as key combination
 	 * @param idOrig
-	 *            the original current block id
+	 *            the original current block
 	 * @param id
-	 *            the modified current block id
+	 *            the modified current block
 	 * @param meta
 	 *            the current block metadata
 	 * @return true if something changed, thus damaging the wand
 	 */
-	public abstract boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, int idOrig, int id, int meta);
+	public abstract boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, Block idOrig, Block id, int meta);
 
 	/**
 	 * Used by {@link #particles(World, WandCoord3D, int)} when effect type is 0
@@ -99,18 +96,18 @@ public abstract class WandItem extends Item {
 
 	@Override
 	public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int i, int j, int k, int l, float par8, float par9, float par10) {
-		int id = world.getBlockId(i, j, k);
+		Block id = world.func_147439_a(i, j, k);
 		int meta = world.getBlockMetadata(i, j, k);
-		int idOrig = id;
+		Block idOrig = id;
 		// general changes
-		if (id == Block.grass.blockID) {
-			id = Block.dirt.blockID;
+		if (id == Blocks.grass) {
+			id = Blocks.dirt;
 		} // Grass->Dirt
-		if (id == Block.torchRedstoneIdle.blockID) {
-			id = Block.torchRedstoneActive.blockID;
+		if (id == Blocks.unlit_redstone_torch) {
+			id = Blocks.redstone_torch;
 		} // RStorch off->on
-		if (id == Block.redstoneRepeaterIdle.blockID) {
-			id = Block.redstoneRepeaterActive.blockID;
+		if (id == Blocks.unpowered_repeater) {
+			id = Blocks.powered_repeater;
 		} // repeater off->on
 		WandCoord3D clicked_current = new WandCoord3D(i, j, k, id, meta);
 		// invalid blocks for building
@@ -124,8 +121,7 @@ public abstract class WandItem extends Item {
 		int keys = itemstack.stackTagCompound.getInteger("Keys");
 		if (keys == 0) {
 			// MARKING START BLOCK
-			Block tmpblock = Block.blocksList[id];
-			world.playSoundEffect(i + 0.5F, j + 0.5F, k + 0.5F, tmpblock.stepSound.getBreakSound(), (tmpblock.stepSound.getVolume() + 1.0F) / 2.0F, tmpblock.stepSound.getPitch() * 0.8F);
+			world.playSoundEffect(i + 0.5F, j + 0.5F, k + 0.5F, id.field_149762_H.func_150496_b(), (id.field_149762_H.func_150497_c() + 1.0F) / 2.0F, id.field_149762_H.func_150494_d() * 0.8F);
 			// saving current block info...
 			clicked_current.writeToNBT(itemstack.stackTagCompound, "Start");
 			// coloured particles
@@ -149,8 +145,7 @@ public abstract class WandItem extends Item {
 				error(entityplayer, clicked_current, "toofar");
 				return true;
 			}
-			boolean damage = false;
-			damage = doMagic(entityplayer, world, Start, End, Info, clicked_current, keys, idOrig, id, meta);
+			boolean damage = doMagic(entityplayer, world, Start, End, Info, clicked_current, keys, idOrig, id, meta);
 			if (damage) {
 				itemstack.stackTagCompound.setBoolean("Started", false);
 				if (!(MagicWands.free || entityplayer.capabilities.isCreativeMode)) {
@@ -163,15 +158,14 @@ public abstract class WandItem extends Item {
 	}
 
 	// CLICKED
-	protected boolean canPlace(World world, int i, int j, int k, int id, int keys) {
-		Block block = Block.blocksList[id];
-		if (canAlter(keys, world.getBlockId(i, j, k))) {
-			if (block.canPlaceBlockAt(world, i, j, k))
+	protected boolean canPlace(World world, int i, int j, int k, Block block, int keys) {
+		if (canAlter(keys, world.func_147439_a(i, j, k))) {
+			if (block.func_149742_c(world, i, j, k))
 				return true;
-			if ((id == Block.cactus.blockID || id == Block.reed.blockID) || (block instanceof BlockFlower)) {
-				return block.canPlaceBlockAt(world, i, j, k);
+			if ((block == Blocks.cactus || block == Blocks.reeds) || (block instanceof BlockFlower)) {
+				return block.func_149742_c(world, i, j, k);
 			}
-			if (id == Block.redstoneWire.blockID || id == Block.pressurePlateStone.blockID || id == Block.pressurePlatePlanks.blockID || id == Block.snow.blockID || block instanceof BlockTorch) {
+			if (block == Blocks.redstone_wire || block == Blocks.stone_pressure_plate || block == Blocks.wooden_pressure_plate || block == Blocks.snow || block instanceof BlockTorch) {
 				return false;
 			}
 			return true;
@@ -229,7 +223,7 @@ public abstract class WandItem extends Item {
 	protected void error(EntityPlayer entityplayer, WandCoord3D pos, String reason) {
 		entityplayer.worldObj.playSoundEffect(pos.x, pos.y, pos.z, "damage.fallsmall", (entityplayer.worldObj.rand.nextFloat() + 0.7F) / 2.0F, 0.5F + entityplayer.worldObj.rand.nextFloat() * 0.3F);
 		if (!entityplayer.worldObj.isRemote)
-			entityplayer.addChatMessage(StatCollector.translateToLocal("error.wand." + reason));
+			entityplayer.func_146105_b(new ChatComponentTranslation("error.wand." + reason));
 		particles(entityplayer.worldObj, pos.x, pos.y, pos.z, 3);
 		return;
 	}
@@ -242,7 +236,7 @@ public abstract class WandItem extends Item {
 	 *            the block id to check
 	 * @return true if the wand can't interact with this block
 	 */
-	protected boolean isIncompatibleBlock(int id) {
+	protected boolean isIncompatibleBlock(Block id) {
 		return false;
 	}
 
@@ -275,22 +269,22 @@ public abstract class WandItem extends Item {
 			double d1 = i + rand.nextFloat();
 			double d2 = j + rand.nextFloat();
 			double d3 = k + rand.nextFloat();
-			if (l == 0 && !world.isBlockOpaqueCube(i, j + 1, k)) {
+			if (l == 0 && !world.func_147439_a(i, j + 1, k).func_149662_c()) {
 				d2 = j + 1 + d;
 			}
-			if (l == 1 && !world.isBlockOpaqueCube(i, j - 1, k)) {
+			if (l == 1 && !world.func_147439_a(i, j - 1, k).func_149662_c()) {
 				d2 = j + 0 - d;
 			}
-			if (l == 2 && !world.isBlockOpaqueCube(i, j, k + 1)) {
+			if (l == 2 && !world.func_147439_a(i, j, k + 1).func_149662_c()) {
 				d3 = k + 1 + d;
 			}
-			if (l == 3 && !world.isBlockOpaqueCube(i, j, k - 1)) {
+			if (l == 3 && !world.func_147439_a(i, j, k - 1).func_149662_c()) {
 				d3 = k + 0 - d;
 			}
-			if (l == 4 && !world.isBlockOpaqueCube(i + 1, j, k)) {
+			if (l == 4 && !world.func_147439_a(i + 1, j, k).func_149662_c()) {
 				d1 = i + 1 + d;
 			}
-			if (l == 5 && !world.isBlockOpaqueCube(i - 1, j, k)) {
+			if (l == 5 && !world.func_147439_a(i - 1, j, k).func_149662_c()) {
 				d1 = i + 0 - d;
 			}
 			if (d1 < i || d1 > i + 1 || d2 < 0.0D || d2 > j + 1 || d3 < k || d3 > k + 1) {
@@ -307,41 +301,41 @@ public abstract class WandItem extends Item {
 		particles(world, c.x, c.y, c.z, effect);
 	}
 
-	public static int getNeededCount(int id, int meta) {
-		if (Block.blocksList[id] instanceof BlockHalfSlab) {
+	public static int getNeededCount(Block id, int meta) {
+		if (id instanceof BlockSlab) {
 			return 2;
 		} else {
 			return 1;
 		}
 	}
 
-	public static ItemStack getNeededItem(int id, int meta) {
-		if (id == Block.leaves.blockID) {
+	public static ItemStack getNeededItem(Block id, int meta) {
+		if (id == Blocks.leaves) {
 			return new ItemStack(id, 1, meta & 3);
-		} else if (id == Block.stone.blockID || id == Block.oreCoal.blockID || id == Block.blockClay.blockID || id == Block.deadBush.blockID || id == Block.bookShelf.blockID
-				|| id == Block.fire.blockID || Block.blocksList[id] instanceof BlockStairs || id == Block.tilledField.blockID || id == Block.oreDiamond.blockID || id == Block.oreLapis.blockID
-				|| Block.blocksList[id] instanceof BlockRedstoneOre || id == Block.glowStone.blockID || id == Block.ice.blockID || id == Block.blockSnow.blockID || id == Block.stoneBrick.blockID) {
+		} else if (id == Blocks.stone || id == Blocks.coal_ore || id == Blocks.clay || id == Blocks.deadbush || id == Blocks.bookshelf
+				|| id == Blocks.fire || id instanceof BlockStairs || id == Blocks.farmland || id == Blocks.diamond_ore || id == Blocks.lapis_ore
+				|| id instanceof BlockRedstoneOre || id == Blocks.glowstone || id == Blocks.ice || id == Blocks.snow || id == Blocks.stonebrick) {
 			return new ItemStack(id, 1, meta);
 		} else {
-			return new ItemStack(Block.blocksList[id].idDropped(id, rand, meta), 1, Block.blocksList[id].damageDropped(meta));
+			return new ItemStack(id.func_149650_a(meta, rand, 0), 1, id.func_149692_a(meta));
 		}
 	}
 
 	// test for cave filler
-	public static boolean isSurface(int blockAt) {
-		return (blockAt == Block.dirt.blockID || blockAt == Block.grass.blockID || blockAt == Block.stone.blockID || blockAt == Block.gravel.blockID || blockAt == Block.sandStone.blockID
-				|| blockAt == Block.sand.blockID || blockAt == Block.bedrock.blockID || blockAt == Block.oreCoal.blockID || blockAt == Block.oreIron.blockID || blockAt == Block.oreGold.blockID
-				|| blockAt == Block.oreDiamond.blockID || blockAt == Block.oreLapis.blockID);
+	public static boolean isSurface(Block blockAt) {
+		return (blockAt == Blocks.dirt || blockAt == Blocks.grass || blockAt == Blocks.stone || blockAt == Blocks.gravel || blockAt == Blocks.sandstone
+				|| blockAt == Blocks.sand || blockAt == Blocks.bedrock || blockAt == Blocks.coal_ore || blockAt == Blocks.iron_ore || blockAt == Blocks.gold_ore
+				|| blockAt == Blocks.diamond_ore || blockAt == Blocks.lapis_ore);
 	}
 
-	protected static boolean emptyBuckets(int bucketId, EntityPlayer entityplayer, int neededItems) {
+	protected static boolean emptyBuckets(Item bucketId, EntityPlayer entityplayer, int neededItems) {
 		if (MagicWands.free || entityplayer.capabilities.isCreativeMode) {
 			return true;
 		}
 		int itemsInInventory = 0;
 		for (int t = 0; t < entityplayer.inventory.getSizeInventory(); t++) {
 			ItemStack currentItem = entityplayer.inventory.getStackInSlot(t);
-			if (currentItem != null && currentItem.itemID == bucketId) // bucketWater
+			if (currentItem != null && currentItem.getItem() == bucketId) // bucketWater
 			{
 				itemsInInventory++;
 			}
@@ -353,9 +347,9 @@ public abstract class WandItem extends Item {
 		// remove blocks from inventory, highest positions first (quickbar last)
 		for (int t = entityplayer.inventory.getSizeInventory() - 1; t >= 0; t--) {
 			ItemStack currentItem = entityplayer.inventory.getStackInSlot(t);
-			if (currentItem != null && currentItem.itemID == bucketId) // bucketWater
+			if (currentItem != null && currentItem.getItem() == bucketId) // bucketWater
 			{
-				entityplayer.inventory.setInventorySlotContents(t, new ItemStack(Item.bucketEmpty));
+				entityplayer.inventory.setInventorySlotContents(t, new ItemStack(Items.bucket));
 				if (--neededItems == 0)
 					return true;
 			}
@@ -363,11 +357,11 @@ public abstract class WandItem extends Item {
 		return false;
 	}
 
-	protected static boolean isMiningOre(int id) {
+	protected static boolean isMiningOre(Block id) {
 		return m_ores.contains(id);
 	}
 
-	protected static boolean isOre(int id) {
+	protected static boolean isOre(Block id) {
 		return ores.contains(id);
 	}
 }

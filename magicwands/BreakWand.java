@@ -1,38 +1,38 @@
 package magicwands;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockCrops;
 import net.minecraft.block.BlockFlower;
-import net.minecraft.block.BlockFluid;
-import net.minecraft.block.BlockStationary;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.StatCollector;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
 public class BreakWand extends WandItem {
 	protected static final int BREAK_XORES = 100, BREAK_ALL = 10, BREAK_WEAK = 1;
 
-	public BreakWand(int i, boolean reinforced) {
-		super(i, reinforced);
+	public BreakWand(boolean reinforced) {
+		super(reinforced);
 		setMaxDamage(reinforced ? 120 : 15);// 10/100 uses
 	}
 
 	@Override
-	public boolean canAlter(int keys, int blockAt) {
-		Block block = Block.blocksList[blockAt];
+	public boolean canAlter(int keys, Block block) {
 		switch (keys) {
 		case BREAK_XORES:
-			return (blockAt != Block.bedrock.blockID || MagicWands.bedrock) && !isOre(blockAt);
+			return (block != Blocks.bedrock || MagicWands.bedrock) && !isOre(block);
 		case BREAK_ALL:
-			return (blockAt != Block.bedrock.blockID || MagicWands.bedrock);
+			return (block != Blocks.bedrock || MagicWands.bedrock);
 		case BREAK_WEAK:
-			return (blockAt == Block.leaves.blockID || block instanceof BlockFlower || blockAt == Block.crops.blockID || blockAt == Block.snow.blockID || block instanceof BlockFluid
-					|| block instanceof BlockStationary || blockAt == Block.fire.blockID || blockAt == Block.vine.blockID);
+			return (block == Blocks.leaves || block == Blocks.snow || block == Blocks.fire || block == Blocks.vine || block instanceof BlockFlower || block instanceof BlockCrops || block instanceof BlockLiquid
+				);
 		}
 		return false;
 	}
 
 	@Override
-	public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, int idOrig, int id, int meta) {
+	public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, Block idOrig, Block id, int meta) {
 		if (MagicWands.disableNotify)
 			world.scheduledUpdatesAreImmediate = true;
 		boolean damage = do_Breaking(world, start, end, clicked_current, keys, entityplayer);
@@ -55,15 +55,16 @@ public class BreakWand extends WandItem {
 
 	// ==== BREAKING ====
 	private boolean do_Breaking(World world, WandCoord3D start, WandCoord3D end, WandCoord3D clicked, int keys, EntityPlayer entityplayer) {
-		int X, Y, Z, blockAt;
+		int X, Y, Z;
+        Block blockAt = Blocks.air;
 		// First, see if there's any work to do--count the breakable blocks.
 		// Not entirely sure a pre-count is necessary with a breaking wand.
 		int cnt = 0;
 		for (X = start.x; X <= end.x; X++) {
 			for (Y = start.y; Y <= end.y; Y++) {
 				for (Z = start.z; Z <= end.z; Z++) {
-					blockAt = world.getBlockId(X, Y, Z);
-					if (blockAt != 0) {
+					blockAt = world.func_147439_a(X, Y, Z);
+					if (blockAt != Blocks.air) {
 						if (canAlter(keys, blockAt))
 							cnt++;
 					}
@@ -72,18 +73,18 @@ public class BreakWand extends WandItem {
 		}
 		if (cnt == 0) {
 			if (!world.isRemote)
-				entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
+				entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
 			return false;
 		}
 		for (X = start.x; X <= end.x; X++) {
 			for (Y = start.y; Y <= end.y; Y++) {
 				for (Z = start.z; Z <= end.z; Z++) {
-					blockAt = world.getBlockId(X, Y, Z);
-					if (blockAt != 0) {
+					blockAt = world.func_147439_a(X, Y, Z);
+					if (blockAt != Blocks.air) {
 						if (canAlter(keys, blockAt)) {
 							int metaAt = world.getBlockMetadata(X, Y, Z);
-							Block.blocksList[blockAt].onBlockDestroyedByPlayer(world, X, Y, Z, metaAt);
-							world.setBlock(X, Y, Z, 0);
+							blockAt.func_149664_b(world, X, Y, Z, metaAt);
+							world.func_147468_f(X, Y, Z);
 							if (rand.nextInt(cnt / 50 + 1) == 0)
 								particles(world, X, Y, Z, 1);
 						}

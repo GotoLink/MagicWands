@@ -1,56 +1,50 @@
 package magicwands;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBed;
-import net.minecraft.block.BlockDoor;
-import net.minecraft.block.BlockFlower;
-import net.minecraft.block.BlockFluid;
-import net.minecraft.block.BlockSign;
-import net.minecraft.block.BlockStationary;
+import net.minecraft.block.*;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public class BuildWand extends WandItem {
 	protected static final int BUILD_BOX = 100, BUILD_ROOM = 10, BUILD_FRAME = 1, BUILD_WATER = 110, BUILD_TORCHES = 101, BUILD_CAVES = 11, BUILD_LAVA = 111;
 
-	public BuildWand(int i, boolean reinforced) {
-		super(i, reinforced);
+	public BuildWand(boolean reinforced) {
+		super(reinforced);
 		setMaxDamage(reinforced ? 200 : 30);// 20/200 uses
 	}
 
 	@Override
-	public boolean canAlter(int keys, int blockAt) {
-		Block block = Block.blocksList[blockAt];
+	public boolean canAlter(int keys, Block block) {
+        if(block == Blocks.air || block == Blocks.leaves || block == Blocks.snow || block == Blocks.fire || block == Blocks.vine || block instanceof BlockCrops || block instanceof BlockFlower){
+            return true;
+        }
 		switch (keys) {
 		case BUILD_BOX:
 		case BUILD_ROOM:
 		case BUILD_FRAME:
-			return (blockAt == 0 || blockAt == Block.leaves.blockID || block instanceof BlockFlower || blockAt == Block.crops.blockID || blockAt == Block.snow.blockID || block instanceof BlockFluid
-					|| block instanceof BlockStationary || blockAt == Block.fire.blockID || blockAt == Block.vine.blockID);
+        case BUILD_CAVES:
+			return (block instanceof BlockLiquid);
 		case BUILD_WATER:
 		case BUILD_LAVA:
-			return (blockAt == 0 || blockAt == Block.leaves.blockID || block instanceof BlockFlower || block instanceof BlockFluid || block instanceof BlockStationary
-					|| blockAt == Block.crops.blockID || blockAt == Block.snow.blockID || blockAt == Block.torchWood.blockID || blockAt == Block.fire.blockID || blockAt == Block.vine.blockID);
-		case BUILD_TORCHES:
-			return (blockAt == 0 || blockAt == Block.leaves.blockID || block instanceof BlockFlower || blockAt == Block.crops.blockID || blockAt == Block.snow.blockID || blockAt == Block.fire.blockID || blockAt == Block.vine.blockID);
-		case BUILD_CAVES:
-			return (blockAt == 0 || blockAt == Block.leaves.blockID || block instanceof BlockFlower || blockAt == Block.crops.blockID || blockAt == Block.snow.blockID || block instanceof BlockFluid
-					|| block instanceof BlockStationary || blockAt == Block.fire.blockID || blockAt == Block.vine.blockID);
+			return (block == Blocks.torch || block instanceof BlockLiquid);
 		}
 		return false;
 	}
 
 	@Override
-	public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, int idOrig, int id, int meta) {
+	public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, Block idOrig, Block id, int meta) {
 		if (id != info.id && (keys == BUILD_BOX || keys == BUILD_ROOM || keys == BUILD_FRAME || keys == BUILD_TORCHES)) {
 			error(entityplayer, clicked_current, "notsamecorner");
 			return false;
 		}
-		if (meta != info.meta && (keys == BUILD_BOX || keys == BUILD_ROOM || keys == BUILD_FRAME || keys == BUILD_TORCHES) && !(id == Block.cactus.blockID || id == Block.reed.blockID)) {
-			if ((id != Block.leaves.blockID) || ((meta & 3) != (info.meta & 3))) {
+		if (meta != info.meta && (keys == BUILD_BOX || keys == BUILD_ROOM || keys == BUILD_FRAME || keys == BUILD_TORCHES) && !(id == Blocks.cactus || id == Blocks.reeds)) {
+			if ((id != Blocks.leaves) || ((meta & 3) != (info.meta & 3))) {
 				error(entityplayer, clicked_current, "notsamecorner");
 				return false;
 			}
@@ -91,17 +85,16 @@ public class BuildWand extends WandItem {
 	}
 
 	@Override
-	protected boolean isIncompatibleBlock(int id) {
-		if (id <= 0 || id == Block.pistonExtension.blockID || id == Block.pistonMoving.blockID)
+	protected boolean isIncompatibleBlock(Block block) {
+		if (block == Blocks.air || block == Blocks.piston_extension || block == Blocks.piston_head)
 			return true;
 		else {
-			Block block = Block.blocksList[id];
 			return block instanceof BlockBed || block instanceof BlockDoor || block instanceof BlockSign;
 		}
 	}
 
 	// === BUILDING ===
-	private boolean do_Building(World world, WandCoord3D start, WandCoord3D end, WandCoord3D clicked, int keys, EntityPlayer entityplayer, int idOrig) {
+	private boolean do_Building(World world, WandCoord3D start, WandCoord3D end, WandCoord3D clicked, int keys, EntityPlayer entityplayer, Block idOrig) {
 		// if((id==Block.cactus.blockID || id==Block.reed.blockID) && (keys ==
 		// BUILD_BOX || keys == BUILD_ROOM || keys == BUILD_FRAME) && !FREE){
 		// error(entityplayer, clicked,
@@ -109,13 +102,14 @@ public class BuildWand extends WandItem {
 		// );
 		// return false;
 		// }
-		int X = 0, Y = 0, Z = 0, blockAt = 0;
-		int id = clicked.id;
+		int X = 0, Y = 0, Z = 0;
+        Block blockAt = Blocks.air;
+		Block id = clicked.id;
 		int meta = clicked.meta;
 		ItemStack neededStack = getNeededItem(id, meta);
 		int multiplier = getNeededCount(id, meta);
 		int neededItems = 0;
-		int bucket = 0;
+		Item bucket;
 		int affected = 0;
 		boolean FREE = MagicWands.free || entityplayer.capabilities.isCreativeMode;
 		switch (keys) {
@@ -133,7 +127,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
+					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -143,7 +137,7 @@ public class BuildWand extends WandItem {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
 							if (canPlace(world, X, Y, Z, id, keys)) {
-								world.setBlock(X, Y, Z, id, meta, 3);
+								world.func_147465_d(X, Y, Z, id, meta, 3);
 								if (rand.nextInt(neededItems / 50 + 1) == 0)
 									particles(world, X, Y, Z, 0);
 								affected++;
@@ -151,7 +145,7 @@ public class BuildWand extends WandItem {
 						}
 					}
 				}
-				if (idOrig == Block.grass.blockID && affected > 0) {
+				if (idOrig == Blocks.grass && affected > 0) {
 					for (int run = 0; run <= 1; run++) {
 						if (run == 0)
 							Y = start.y;
@@ -159,9 +153,9 @@ public class BuildWand extends WandItem {
 							Y = end.y;
 						for (X = start.x; X <= end.x; X++) {
 							for (Z = start.z; Z <= end.z; Z++) {
-								if (world.getBlockId(X, Y, Z) == Block.dirt.blockID
-										&& (Block.blocksList[world.getBlockId(X, Y + 1, Z)] == null || !Block.blocksList[world.getBlockId(X, Y + 1, Z)].isOpaqueCube())) {
-									world.setBlock(X, Y, Z, Block.grass.blockID);
+								if (world.func_147439_a(X, Y, Z) == Blocks.dirt
+										&& (world.func_147439_a(X, Y + 1, Z) == Blocks.air || !world.func_147439_a(X, Y + 1, Z).func_149686_d())) {
+									world.func_147449_b(X, Y, Z, Blocks.grass);
 								}
 							}
 						}
@@ -187,7 +181,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
+					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -198,7 +192,7 @@ public class BuildWand extends WandItem {
 						for (Y = start.y; Y <= end.y; Y++) {
 							if (X == start.x || Y == start.y || Z == start.z || X == end.x || Y == end.y || Z == end.z) {
 								if (canPlace(world, X, Y, Z, id, keys)) {
-									world.setBlock(X, Y, Z, id, meta, 3);
+									world.func_147465_d(X, Y, Z, id, meta, 3);
 									if (rand.nextInt(neededItems / 50 + 1) == 0)
 										particles(world, X, Y, Z, 0);
 									affected++;
@@ -207,7 +201,7 @@ public class BuildWand extends WandItem {
 						}
 					}
 				}
-				if (idOrig == Block.grass.blockID && affected > 0) {
+				if (idOrig == Blocks.grass && affected > 0) {
 					for (int run = 0; run <= 1; run++) {
 						if (run == 0)
 							Y = start.y;
@@ -215,9 +209,9 @@ public class BuildWand extends WandItem {
 							Y = end.y;
 						for (X = start.x; X <= end.x; X++) {
 							for (Z = start.z; Z <= end.z; Z++) {
-								if (world.getBlockId(X, Y, Z) == Block.dirt.blockID
-										&& (Block.blocksList[world.getBlockId(X, Y + 1, Z)] == null || !Block.blocksList[world.getBlockId(X, Y + 1, Z)].isOpaqueCube())) {
-									world.setBlock(X, Y, Z, Block.grass.blockID);
+								if (world.func_147439_a(X, Y, Z) == Blocks.dirt
+										&& (world.func_147439_a(X, Y + 1, Z) == Blocks.air || !world.func_147439_a(X, Y + 1, Z).func_149686_d())) {
+									world.func_147449_b(X, Y, Z, Blocks.grass);
 								}
 							}
 						}
@@ -245,7 +239,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
+					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -257,9 +251,9 @@ public class BuildWand extends WandItem {
 							if ((X == start.x && Y == start.y) || (Y == start.y && Z == start.z) || (Z == start.z && X == start.x) || (X == start.x && Y == end.y) || (X == end.x && Y == start.y)
 									|| (Y == start.y && Z == end.z) || (Y == end.y && Z == start.z) || (Z == start.z && X == end.x) || (Z == end.z && X == start.x) || (X == end.x && Y == end.y)
 									|| (Y == end.y && Z == end.z) || (Z == end.z && X == end.x)) {
-								blockAt = world.getBlockId(X, Y, Z);
+								blockAt = world.func_147439_a(X, Y, Z);
 								if (canPlace(world, X, Y, Z, id, keys)) {
-									world.setBlock(X, Y, Z, id, meta, 3);
+									world.func_147465_d(X, Y, Z, id, meta, 3);
 									if (rand.nextInt(neededItems / 50 + 1) == 0)
 										particles(world, X, Y, Z, 0);
 									affected++;
@@ -268,7 +262,7 @@ public class BuildWand extends WandItem {
 						}
 					}
 				}
-				if (idOrig == Block.grass.blockID && affected > 0) {
+				if (idOrig == Blocks.grass && affected > 0) {
 					for (int run = 0; run <= 1; run++) {
 						if (run == 0)
 							Y = start.y;
@@ -279,9 +273,9 @@ public class BuildWand extends WandItem {
 								if ((X == start.x && Y == start.y) || (Y == start.y && Z == start.z) || (Z == start.z && X == start.x) || (X == start.x && Y == end.y) || (X == end.x && Y == start.y)
 										|| (Y == start.y && Z == end.z) || (Y == end.y && Z == start.z) || (Z == start.z && X == end.x) || (Z == end.z && X == start.x) || (X == end.x && Y == end.y)
 										|| (Y == end.y && Z == end.z) || (Z == end.z && X == end.x)) {
-									if (world.getBlockId(X, Y, Z) == Block.dirt.blockID
-											&& (Block.blocksList[world.getBlockId(X, Y + 1, Z)] == null || !Block.blocksList[world.getBlockId(X, Y + 1, Z)].isOpaqueCube())) {
-										world.setBlock(X, Y, Z, Block.grass.blockID);
+									if (world.func_147439_a(X, Y, Z) == Blocks.dirt
+											&& (world.func_147439_a(X, Y + 1, Z) == Blocks.air || !world.func_147439_a(X, Y + 1, Z).func_149686_d())) {
+										world.func_147449_b(X, Y, Z, Blocks.grass);
 									}
 								}
 							}
@@ -299,7 +293,7 @@ public class BuildWand extends WandItem {
 			for (X = start.x; X <= end.x; X += 5) {
 				for (Z = start.z; Z <= end.z; Z += 5) {
 					for (Y = start.y; Y <= end.y; Y++) {
-						blockAt = world.getBlockId(X, Y, Z);
+						blockAt = world.func_147439_a(X, Y, Z);
 						if (canPlace(world, X, Y, Z, id, keys)) {
 							neededItems += multiplier;
 						}
@@ -308,7 +302,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
+					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -317,9 +311,9 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X += 5) {
 					for (Z = start.z; Z <= end.z; Z += 5) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.getBlockId(X, Y, Z);
+							blockAt = world.func_147439_a(X, Y, Z);
 							if (canPlace(world, X, Y, Z, id, keys)) {
-								world.setBlock(X, Y, Z, id, meta, 3);
+								world.func_147465_d(X, Y, Z, id, meta, 3);
 								particles(world, X, Y, Z, 0);
 								affected++;
 							}
@@ -335,7 +329,7 @@ public class BuildWand extends WandItem {
 				error(entityplayer, clicked, "cantfillwater");
 				return false;
 			}
-			bucket = Item.bucketWater.itemID;
+			bucket = Items.water_bucket;
 			if (!FREE) {
 				// count items in inventory
 				neededItems = 0;
@@ -343,7 +337,7 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.getBlockId(X, Y, Z);
+							blockAt = world.func_147439_a(X, Y, Z);
 							if (canAlter(keys, blockAt)) {
 								neededItems++;
 							}
@@ -352,7 +346,7 @@ public class BuildWand extends WandItem {
 				}
 				if (neededItems == 0) {
 					if (!world.isRemote)
-						entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
+						entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
 					return false;
 				}
 			}
@@ -361,9 +355,9 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.getBlockId(X, Y, Z);
+							blockAt = world.func_147439_a(X, Y, Z);
 							if (canAlter(keys, blockAt)) {
-								world.setBlock(X, Y, Z, Block.waterMoving.blockID);
+								world.func_147449_b(X, Y, Z, Blocks.flowing_water);
 								affected++;
 							}
 						}
@@ -375,10 +369,10 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.getBlockId(X, Y, Z);
-							if (blockAt == Block.waterMoving.blockID) {
-								world.notifyBlockChange(X, Y, Z, Block.waterMoving.blockID);
-								if (world.getBlockId(X, Y + 1, Z) == 0)
+							blockAt = world.func_147439_a(X, Y, Z);
+							if (blockAt == Blocks.flowing_water) {
+								world.func_147444_c(X, Y, Z, Blocks.flowing_water);
+								if (world.func_147437_c(X, Y + 1, Z))
 									particles(world, X, Y, Z, 2);
 							}
 						}
@@ -394,7 +388,7 @@ public class BuildWand extends WandItem {
 				error(entityplayer, clicked, "cantfilllava");
 				return false;
 			}
-			bucket = Item.bucketLava.itemID;
+			bucket = Items.lava_bucket;
 			// count Items in inventory
 			neededItems = 0;
 			if (!FREE) {
@@ -402,7 +396,7 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.getBlockId(X, Y, Z);
+							blockAt = world.func_147439_a(X, Y, Z);
 							if (canAlter(keys, blockAt))
 								neededItems++;
 						}
@@ -410,7 +404,7 @@ public class BuildWand extends WandItem {
 				}
 				if (neededItems == 0) {
 					if (!world.isRemote)
-						entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
+						entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
 					return false;
 				}
 			}
@@ -419,9 +413,9 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.getBlockId(X, Y, Z);
+							blockAt = world.func_147439_a(X, Y, Z);
 							if (canAlter(keys, blockAt)) {
-								world.setBlock(X, Y, Z, Block.lavaMoving.blockID);
+								world.func_147449_b(X, Y, Z, Blocks.flowing_lava);
 								affected++;
 							}
 						}
@@ -433,9 +427,9 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.getBlockId(X, Y, Z);
-							if (blockAt == Block.lavaMoving.blockID) {
-								world.notifyBlockChange(X, Y, Z, Block.lavaMoving.blockID);
+							blockAt = world.func_147439_a(X, Y, Z);
+							if (blockAt == Blocks.flowing_lava) {
+								world.func_147444_c(X, Y, Z, Blocks.flowing_lava);
 							}
 						}
 					}
@@ -456,7 +450,7 @@ public class BuildWand extends WandItem {
 				for (Z = start.z; Z <= end.z; Z++) {
 					underground = false;
 					for (Y = 127; Y > 1; Y--) {
-						blockAt = world.getBlockId(X, Y, Z);
+						blockAt = world.func_147439_a(X, Y, Z);
 						boolean surfaceBlock = isSurface(blockAt);
 						if (!underground && surfaceBlock) {
 							underground = true;
@@ -466,7 +460,7 @@ public class BuildWand extends WandItem {
 							continue;
 						}
 						if (canAlter(keys, blockAt)) {
-							world.setBlock(X, Y, Z, Block.stone.blockID);
+							world.func_147449_b(X, Y, Z, Blocks.stone);
 							cnt++;
 						}
 					}
@@ -474,11 +468,11 @@ public class BuildWand extends WandItem {
 			}
 			if (cnt > 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage(cnt + StatCollector.translateToLocal("result.wand.fill"));
+					entityplayer.func_146105_b(new ChatComponentText(cnt + StatCollector.translateToLocal("result.wand.fill")));
 				return true;
 			} else {
 				if (!world.isRemote)
-					entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nocave"));
+					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nocave"));
 				return false;
 			}
 		} // end of the long switch

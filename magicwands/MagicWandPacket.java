@@ -1,43 +1,37 @@
 package magicwands;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
+import cpw.mods.fml.common.network.internal.FMLProxyPacket;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.relauncher.Side;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet250CustomPayload;
 
-public abstract class MagicWandPacket {
+public abstract class MagicWandPacket implements IMessage{
 	int entityId;
 
-	public final Packet getPacket() {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(bos);
-		try {
-			write(out);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return new Packet250CustomPayload(getChannel(), bos.toByteArray());
+	public final FMLProxyPacket getPacket(Side side) {
+        ByteBuf out = Unpooled.buffer();
+        toBytes(out);
+        FMLProxyPacket packet = new FMLProxyPacket(out, getChannel());
+        packet.setTarget(side);
+		return packet;
 	}
 
-	abstract void execute(Entity entity);
+	abstract FMLProxyPacket execute(Entity entity);
 
 	abstract String getChannel();
 
-	void read(DataInput in) throws IOException {
+    public void fromBytes(ByteBuf in) {
 		entityId = in.readInt();
 	}
 
-	void run(EntityPlayer player) {
-		execute(player.worldObj.getEntityByID(entityId));
+	FMLProxyPacket run(EntityPlayer player) {
+		return execute(player.worldObj.getEntityByID(entityId));
 	}
 
-	void write(DataOutput out) throws IOException {
+    public void toBytes(ByteBuf out) {
 		out.writeInt(entityId);
 	}
 }

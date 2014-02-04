@@ -4,36 +4,36 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.StatCollector;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
 public class MineWand extends WandItem {
 	protected static final int MINE_ALL = 100, MINE_DIRT = 10, MINE_WOOD = 1, MINE_ORES = 110;
 
-	public MineWand(int i, boolean reinforced) {
-		super(i, reinforced);
+	public MineWand(boolean reinforced) {
+		super(reinforced);
 		setMaxDamage(reinforced ? 120 : 15);// 8/80 uses
 	}
 
 	@Override
-	public boolean canAlter(int keys, int blockAt) {
-		Block block = Block.blocksList[blockAt];
+	public boolean canAlter(int keys, Block block) {
 		switch (keys) {
 		case MINE_ALL:
-			return (blockAt != Block.bedrock.blockID || MagicWands.bedrock) && (blockAt != Block.obsidian.blockID || MagicWands.obsidian);
+			return (block != Blocks.bedrock || MagicWands.bedrock) && (block != Blocks.obsidian || MagicWands.obsidian);
 		case MINE_DIRT:
-			return (blockAt == Block.grass.blockID || blockAt == Block.dirt.blockID || blockAt == Block.sand.blockID || blockAt == Block.gravel.blockID || blockAt == Block.leaves.blockID
-					|| block instanceof BlockFlower || blockAt == Block.tilledField.blockID || blockAt == Block.snow.blockID || blockAt == Block.slowSand.blockID || blockAt == Block.vine.blockID);
+			return (block == Blocks.grass || block == Blocks.dirt || block == Blocks.sand || block == Blocks.gravel || block == Blocks.leaves
+					|| block == Blocks.farmland || block == Blocks.snow || block == Blocks.soul_sand || block == Blocks.vine|| block instanceof BlockFlower);
 		case MINE_WOOD:
-			return block.blockMaterial == Material.wood;
+			return block.func_149688_o() == Material.field_151575_d;
 		case MINE_ORES:
-			return isMiningOre(blockAt) && (blockAt != Block.bedrock.blockID || MagicWands.bedrock) && (blockAt != Block.obsidian.blockID || MagicWands.obsidian);
+			return isMiningOre(block) && (block != Blocks.bedrock || MagicWands.bedrock) && (block != Blocks.obsidian || MagicWands.obsidian);
 		}
 		return false;
 	}
 
 	@Override
-	public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, int idOrig, int id, int meta) {
+	public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, Block idOrig, Block id, int meta) {
 		if (MagicWands.disableNotify)
 			world.scheduledUpdatesAreImmediate = true; // scheduledUpdatesAreImmediate
 		boolean damage = do_Mining(world, start, end, clicked_current, keys, entityplayer);
@@ -65,12 +65,13 @@ public class MineWand extends WandItem {
 
 	// ==== MINING ====
 	private boolean do_Mining(World world, WandCoord3D start, WandCoord3D end, WandCoord3D clicked, int keys, EntityPlayer entityplayer) {
-		int X, Y, Z, blockAt, metaAt;
+		int X, Y, Z, metaAt;
+        Block blockAt;
 		int blocks2Dig = 0;
 		// MINING OBSIDIAN 1x1x1
-		if (keys == MINE_ALL && start.x == end.x && start.y == end.y && start.z == end.z && !MagicWands.obsidian && world.getBlockId(start.x, start.y, start.z) == Block.obsidian.blockID) {
-			Block.obsidian.onBlockDestroyedByPlayer(world, start.x, start.y, start.z, 0);
-			Block.obsidian.harvestBlock(world, entityplayer, start.x, start.y, start.z, 0);
+		if (keys == MINE_ALL && start.x == end.x && start.y == end.y && start.z == end.z && !MagicWands.obsidian && world.func_147439_a(start.x, start.y, start.z) == Blocks.obsidian) {
+			Blocks.obsidian.func_149664_b(world, start.x, start.y, start.z, 0);
+			Blocks.obsidian.func_149636_a(world, entityplayer, start.x, start.y, start.z, 0);
 			particles(world, start.x, start.y, start.z, 1);
 			return true;
 		}
@@ -81,10 +82,10 @@ public class MineWand extends WandItem {
 			for (X = start.x; X <= end.x; X++) {
 				for (Y = 1; Y < 128; Y++) {
 					for (Z = start.z; Z <= end.z; Z++) {
-						blockAt = world.getBlockId(X, Y, Z);
+						blockAt = world.func_147439_a(X, Y, Z);
 						if (isMiningOre(blockAt)) {
 							// add more drops for redstone and lapis
-							if (blockAt == 73 || blockAt == 74 || blockAt == 21) {
+							if (blockAt == Blocks.redstone_ore || blockAt == Blocks.lit_redstone_ore || blockAt == Blocks.lapis_ore) {
 								blocks2Dig += 4;
 							} else {
 								blocks2Dig++;
@@ -107,8 +108,8 @@ public class MineWand extends WandItem {
 				for (Z = start.z; Z <= end.z; Z++) {
 					underground = false;
 					for (Y = 127; Y > 1; Y--) {
-						blockAt = world.getBlockId(X, Y, Z);
-						if (!underground && world.isAirBlock(X, Y, Z)) {
+						blockAt = world.func_147439_a(X, Y, Z);
+						if (!underground && world.func_147437_c(X, Y, Z)) {
 							surface = Y;
 						}
 						surfaceBlock = isSurface(blockAt);
@@ -116,9 +117,9 @@ public class MineWand extends WandItem {
 							underground = true;
 						if (isMiningOre(blockAt)) {
 							metaAt = world.getBlockMetadata(X, Y, Z);
-							world.setBlock(X, Y, Z, Block.stone.blockID);
-							Block.blocksList[blockAt].onBlockDestroyedByPlayer(world, X, surface, Z, metaAt);
-							Block.blocksList[blockAt].harvestBlock(world, entityplayer, X, surface, Z, metaAt);
+							world.func_147449_b(X, Y, Z, Blocks.stone);
+							blockAt.func_149664_b(world, X, surface, Z, metaAt);
+							blockAt.func_149636_a(world, entityplayer, X, surface, Z, metaAt);
 							cnt++;
 						}
 					}
@@ -126,7 +127,7 @@ public class MineWand extends WandItem {
 			}
 			if (cnt == 0) {
 				if (!world.isRemote)
-					entityplayer.addChatMessage(StatCollector.translateToLocal("result.wand.mine"));
+					entityplayer.func_146105_b(new ChatComponentTranslation("result.wand.mine"));
 				return false;
 			}
 			return true;
@@ -135,10 +136,10 @@ public class MineWand extends WandItem {
 		for (X = start.x; X <= end.x; X++) {
 			for (Y = start.y; Y <= end.y; Y++) {
 				for (Z = start.z; Z <= end.z; Z++) {
-					blockAt = world.getBlockId(X, Y, Z);
-					if (Block.blocksList[blockAt] != null && canAlter(keys, blockAt)) {
+					blockAt = world.func_147439_a(X, Y, Z);
+					if (blockAt != null && canAlter(keys, blockAt)) {
 						// add more drops for redstone and lapis
-						if (blockAt == Block.oreRedstone.blockID || blockAt == Block.oreRedstoneGlowing.blockID || blockAt == Block.oreLapis.blockID) {
+						if (blockAt == Blocks.redstone_ore || blockAt == Blocks.lit_redstone_ore || blockAt == Blocks.lapis_ore) {
 							blocks2Dig += 4;
 						} else {
 							blocks2Dig++;
@@ -154,17 +155,17 @@ public class MineWand extends WandItem {
 		// now the mining itself.
 		if (blocks2Dig == 0) {
 			if (!world.isRemote)
-				entityplayer.addChatMessage(StatCollector.translateToLocal("message.wand.nowork"));
+				entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
 			return false;
 		}
 		for (X = start.x; X <= end.x; X++) {
 			for (Y = start.y; Y <= end.y; Y++) {
 				for (Z = start.z; Z <= end.z; Z++) {
-					blockAt = world.getBlockId(X, Y, Z);
+					blockAt = world.func_147439_a(X, Y, Z);
 					metaAt = world.getBlockMetadata(X, Y, Z);
-					if (Block.blocksList[blockAt] != null && canAlter(keys, blockAt)) {
-						world.setBlockToAir(X, Y, Z);
-						Block.blocksList[blockAt].onBlockDestroyedByPlayer(world, X, Y, Z, metaAt);
+					if (blockAt != null && canAlter(keys, blockAt)) {
+						world.func_147468_f(X, Y, Z);
+						blockAt.func_149664_b(world, X, Y, Z, metaAt);
 						/*
 						 * if(blockAt == Block.vine.blockID){
 						 * Block.blocksList[blockAt].dropBlockAsItem_do(world,
@@ -183,7 +184,7 @@ public class MineWand extends WandItem {
 						 * Block.blocksList[blockAt].dropBlockAsItem_do(world,
 						 * X, Y, Z, new ItemStack(blockAt, 1, 0)); }else{
 						 */
-						Block.blocksList[blockAt].harvestBlock(world, entityplayer, X, Y, Z, metaAt);
+						blockAt.func_149636_a(world, entityplayer, X, Y, Z, metaAt);
 						// }
 						if (rand.nextInt(blocks2Dig / 50 + 1) == 0)
 							particles(world, X, Y, Z, 1);

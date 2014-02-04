@@ -1,15 +1,12 @@
 package magicwands;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
+import cpw.mods.fml.common.network.internal.FMLProxyPacket;
+import cpw.mods.fml.relauncher.Side;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
 
 public class WandKeyPacket extends MagicWandPacket {
 	int keyCode;
@@ -23,7 +20,7 @@ public class WandKeyPacket extends MagicWandPacket {
 	}
 
 	@Override
-	void execute(Entity entity) {
+    FMLProxyPacket execute(Entity entity) {
 		if (entity instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer) entity;
 			if (player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof WandItem) {
@@ -32,26 +29,27 @@ public class WandKeyPacket extends MagicWandPacket {
 				}
 				player.getCurrentEquippedItem().getTagCompound().setInteger("Keys", keyCode);
 				if (player instanceof EntityPlayerMP) {
-					PacketDispatcher.sendPacketToPlayer(getPacket(), (Player) player);
+					return getPacket(Side.CLIENT);
 				}
 			}
 		}
+        return null;
 	}
 
 	@Override
 	String getChannel() {
-		return "MagicWandKey";
+		return PacketHandler.CHANNEL;
 	}
 
 	@Override
-	void read(DataInput in) throws IOException {
-		super.read(in);
+    public void fromBytes(ByteBuf in) {
+		super.fromBytes(in);
 		this.keyCode = in.readInt();
 	}
 
 	@Override
-	void write(DataOutput out) throws IOException {
-		super.write(out);
+    public void toBytes(ByteBuf out) {
+		super.toBytes(out);
 		out.writeInt(keyCode);
 	}
 }
