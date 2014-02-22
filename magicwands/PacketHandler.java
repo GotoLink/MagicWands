@@ -13,7 +13,7 @@ public class PacketHandler {
     public static final String CHANNEL = "MagicWands:Key";
     @SubscribeEvent
     public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
-        event.reply = handlePacket(event.packet, ((NetHandlerPlayServer)event.handler).field_147369_b);
+        event.reply = handlePacket(event.packet, ((NetHandlerPlayServer)event.handler).playerEntity);
     }
 
     private FMLProxyPacket handlePacket(FMLProxyPacket packet, EntityPlayer player) {

@@ -63,7 +63,7 @@ public class BreakWand extends WandItem {
 		for (X = start.x; X <= end.x; X++) {
 			for (Y = start.y; Y <= end.y; Y++) {
 				for (Z = start.z; Z <= end.z; Z++) {
-					blockAt = world.func_147439_a(X, Y, Z);
+					blockAt = world.getBlock(X, Y, Z);
 					if (blockAt != Blocks.air) {
 						if (canAlter(keys, blockAt))
 							cnt++;
@@ -73,18 +73,18 @@ public class BreakWand extends WandItem {
 		}
 		if (cnt == 0) {
 			if (!world.isRemote)
-				entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
+				entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
 			return false;
 		}
 		for (X = start.x; X <= end.x; X++) {
 			for (Y = start.y; Y <= end.y; Y++) {
 				for (Z = start.z; Z <= end.z; Z++) {
-					blockAt = world.func_147439_a(X, Y, Z);
+					blockAt = world.getBlock(X, Y, Z);
 					if (blockAt != Blocks.air) {
 						if (canAlter(keys, blockAt)) {
 							int metaAt = world.getBlockMetadata(X, Y, Z);
-							blockAt.func_149664_b(world, X, Y, Z, metaAt);
-							world.func_147468_f(X, Y, Z);
+							blockAt.onBlockDestroyedByPlayer(world, X, Y, Z, metaAt);
+							world.setBlockToAir(X, Y, Z);
 							if (rand.nextInt(cnt / 50 + 1) == 0)
 								particles(world, X, Y, Z, 1);
 						}

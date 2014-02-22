@@ -96,7 +96,7 @@ public abstract class WandItem extends Item {
 
 	@Override
 	public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int i, int j, int k, int l, float par8, float par9, float par10) {
-		Block id = world.func_147439_a(i, j, k);
+		Block id = world.getBlock(i, j, k);
 		int meta = world.getBlockMetadata(i, j, k);
 		Block idOrig = id;
 		// general changes
@@ -121,7 +121,7 @@ public abstract class WandItem extends Item {
 		int keys = itemstack.stackTagCompound.getInteger("Keys");
 		if (keys == 0) {
 			// MARKING START BLOCK
-			world.playSoundEffect(i + 0.5F, j + 0.5F, k + 0.5F, id.field_149762_H.func_150496_b(), (id.field_149762_H.func_150497_c() + 1.0F) / 2.0F, id.field_149762_H.func_150494_d() * 0.8F);
+			world.playSoundEffect(i + 0.5F, j + 0.5F, k + 0.5F, id.stepSound.func_150496_b(), (id.stepSound.getVolume() + 1.0F) / 2.0F, id.stepSound.getPitch() * 0.8F);
 			// saving current block info...
 			clicked_current.writeToNBT(itemstack.stackTagCompound, "Start");
 			// coloured particles
@@ -159,11 +159,11 @@ public abstract class WandItem extends Item {
 
 	// CLICKED
 	protected boolean canPlace(World world, int i, int j, int k, Block block, int keys) {
-		if (canAlter(keys, world.func_147439_a(i, j, k))) {
-			if (block.func_149742_c(world, i, j, k))
+		if (canAlter(keys, world.getBlock(i, j, k))) {
+			if (block.canPlaceBlockAt(world, i, j, k))
 				return true;
-			if ((block == Blocks.cactus || block == Blocks.reeds) || (block instanceof BlockFlower)) {
-				return block.func_149742_c(world, i, j, k);
+			if (block == Blocks.cactus || block == Blocks.reeds || block instanceof BlockFlower) {
+				return false;
 			}
 			if (block == Blocks.redstone_wire || block == Blocks.stone_pressure_plate || block == Blocks.wooden_pressure_plate || block == Blocks.snow || block instanceof BlockTorch) {
 				return false;
@@ -223,7 +223,7 @@ public abstract class WandItem extends Item {
 	protected void error(EntityPlayer entityplayer, WandCoord3D pos, String reason) {
 		entityplayer.worldObj.playSoundEffect(pos.x, pos.y, pos.z, "damage.fallsmall", (entityplayer.worldObj.rand.nextFloat() + 0.7F) / 2.0F, 0.5F + entityplayer.worldObj.rand.nextFloat() * 0.3F);
 		if (!entityplayer.worldObj.isRemote)
-			entityplayer.func_146105_b(new ChatComponentTranslation("error.wand." + reason));
+			entityplayer.addChatComponentMessage(new ChatComponentTranslation("error.wand." + reason));
 		particles(entityplayer.worldObj, pos.x, pos.y, pos.z, 3);
 		return;
 	}
@@ -269,22 +269,22 @@ public abstract class WandItem extends Item {
 			double d1 = i + rand.nextFloat();
 			double d2 = j + rand.nextFloat();
 			double d3 = k + rand.nextFloat();
-			if (l == 0 && !world.func_147439_a(i, j + 1, k).func_149662_c()) {
+			if (l == 0 && !world.getBlock(i, j + 1, k).isOpaqueCube()) {
 				d2 = j + 1 + d;
 			}
-			if (l == 1 && !world.func_147439_a(i, j - 1, k).func_149662_c()) {
+			if (l == 1 && !world.getBlock(i, j - 1, k).isOpaqueCube()) {
 				d2 = j + 0 - d;
 			}
-			if (l == 2 && !world.func_147439_a(i, j, k + 1).func_149662_c()) {
+			if (l == 2 && !world.getBlock(i, j, k + 1).isOpaqueCube()) {
 				d3 = k + 1 + d;
 			}
-			if (l == 3 && !world.func_147439_a(i, j, k - 1).func_149662_c()) {
+			if (l == 3 && !world.getBlock(i, j, k - 1).isOpaqueCube()) {
 				d3 = k + 0 - d;
 			}
-			if (l == 4 && !world.func_147439_a(i + 1, j, k).func_149662_c()) {
+			if (l == 4 && !world.getBlock(i + 1, j, k).isOpaqueCube()) {
 				d1 = i + 1 + d;
 			}
-			if (l == 5 && !world.func_147439_a(i - 1, j, k).func_149662_c()) {
+			if (l == 5 && !world.getBlock(i - 1, j, k).isOpaqueCube()) {
 				d1 = i + 0 - d;
 			}
 			if (d1 < i || d1 > i + 1 || d2 < 0.0D || d2 > j + 1 || d3 < k || d3 > k + 1) {
@@ -317,7 +317,7 @@ public abstract class WandItem extends Item {
 				|| id instanceof BlockRedstoneOre || id == Blocks.glowstone || id == Blocks.ice || id == Blocks.snow || id == Blocks.stonebrick) {
 			return new ItemStack(id, 1, meta);
 		} else {
-			return new ItemStack(id.func_149650_a(meta, rand, 0), 1, id.func_149692_a(meta));
+			return new ItemStack(id.getItemDropped(meta, rand, 0), 1, id.damageDropped(meta));
 		}
 	}
 

@@ -25,7 +25,7 @@ public class MineWand extends WandItem {
 			return (block == Blocks.grass || block == Blocks.dirt || block == Blocks.sand || block == Blocks.gravel || block == Blocks.leaves
 					|| block == Blocks.farmland || block == Blocks.snow || block == Blocks.soul_sand || block == Blocks.vine|| block instanceof BlockFlower);
 		case MINE_WOOD:
-			return block.func_149688_o() == Material.field_151575_d;
+			return block.getMaterial() == Material.wood;
 		case MINE_ORES:
 			return isMiningOre(block) && (block != Blocks.bedrock || MagicWands.bedrock) && (block != Blocks.obsidian || MagicWands.obsidian);
 		}
@@ -69,9 +69,9 @@ public class MineWand extends WandItem {
         Block blockAt;
 		int blocks2Dig = 0;
 		// MINING OBSIDIAN 1x1x1
-		if (keys == MINE_ALL && start.x == end.x && start.y == end.y && start.z == end.z && !MagicWands.obsidian && world.func_147439_a(start.x, start.y, start.z) == Blocks.obsidian) {
-			Blocks.obsidian.func_149664_b(world, start.x, start.y, start.z, 0);
-			Blocks.obsidian.func_149636_a(world, entityplayer, start.x, start.y, start.z, 0);
+		if (keys == MINE_ALL && start.x == end.x && start.y == end.y && start.z == end.z && !MagicWands.obsidian && world.getBlock(start.x, start.y, start.z) == Blocks.obsidian) {
+			Blocks.obsidian.onBlockDestroyedByPlayer(world, start.x, start.y, start.z, 0);
+			Blocks.obsidian.harvestBlock(world, entityplayer, start.x, start.y, start.z, 0);
 			particles(world, start.x, start.y, start.z, 1);
 			return true;
 		}
@@ -82,7 +82,7 @@ public class MineWand extends WandItem {
 			for (X = start.x; X <= end.x; X++) {
 				for (Y = 1; Y < 128; Y++) {
 					for (Z = start.z; Z <= end.z; Z++) {
-						blockAt = world.func_147439_a(X, Y, Z);
+						blockAt = world.getBlock(X, Y, Z);
 						if (isMiningOre(blockAt)) {
 							// add more drops for redstone and lapis
 							if (blockAt == Blocks.redstone_ore || blockAt == Blocks.lit_redstone_ore || blockAt == Blocks.lapis_ore) {
@@ -108,8 +108,8 @@ public class MineWand extends WandItem {
 				for (Z = start.z; Z <= end.z; Z++) {
 					underground = false;
 					for (Y = 127; Y > 1; Y--) {
-						blockAt = world.func_147439_a(X, Y, Z);
-						if (!underground && world.func_147437_c(X, Y, Z)) {
+						blockAt = world.getBlock(X, Y, Z);
+						if (!underground && world.isAirBlock(X, Y, Z)) {
 							surface = Y;
 						}
 						surfaceBlock = isSurface(blockAt);
@@ -117,9 +117,9 @@ public class MineWand extends WandItem {
 							underground = true;
 						if (isMiningOre(blockAt)) {
 							metaAt = world.getBlockMetadata(X, Y, Z);
-							world.func_147449_b(X, Y, Z, Blocks.stone);
-							blockAt.func_149664_b(world, X, surface, Z, metaAt);
-							blockAt.func_149636_a(world, entityplayer, X, surface, Z, metaAt);
+							world.setBlock(X, Y, Z, Blocks.stone);
+							blockAt.onBlockDestroyedByPlayer(world, X, surface, Z, metaAt);
+							blockAt.harvestBlock(world, entityplayer, X, surface, Z, metaAt);
 							cnt++;
 						}
 					}
@@ -127,7 +127,7 @@ public class MineWand extends WandItem {
 			}
 			if (cnt == 0) {
 				if (!world.isRemote)
-					entityplayer.func_146105_b(new ChatComponentTranslation("result.wand.mine"));
+					entityplayer.addChatComponentMessage(new ChatComponentTranslation("result.wand.mine"));
 				return false;
 			}
 			return true;
@@ -136,7 +136,7 @@ public class MineWand extends WandItem {
 		for (X = start.x; X <= end.x; X++) {
 			for (Y = start.y; Y <= end.y; Y++) {
 				for (Z = start.z; Z <= end.z; Z++) {
-					blockAt = world.func_147439_a(X, Y, Z);
+					blockAt = world.getBlock(X, Y, Z);
 					if (blockAt != null && canAlter(keys, blockAt)) {
 						// add more drops for redstone and lapis
 						if (blockAt == Blocks.redstone_ore || blockAt == Blocks.lit_redstone_ore || blockAt == Blocks.lapis_ore) {
@@ -155,17 +155,17 @@ public class MineWand extends WandItem {
 		// now the mining itself.
 		if (blocks2Dig == 0) {
 			if (!world.isRemote)
-				entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
+				entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
 			return false;
 		}
 		for (X = start.x; X <= end.x; X++) {
 			for (Y = start.y; Y <= end.y; Y++) {
 				for (Z = start.z; Z <= end.z; Z++) {
-					blockAt = world.func_147439_a(X, Y, Z);
+					blockAt = world.getBlock(X, Y, Z);
 					metaAt = world.getBlockMetadata(X, Y, Z);
 					if (blockAt != null && canAlter(keys, blockAt)) {
-						world.func_147468_f(X, Y, Z);
-						blockAt.func_149664_b(world, X, Y, Z, metaAt);
+						world.setBlockToAir(X, Y, Z);
+						blockAt.onBlockDestroyedByPlayer(world, X, Y, Z, metaAt);
 						/*
 						 * if(blockAt == Block.vine.blockID){
 						 * Block.blocksList[blockAt].dropBlockAsItem_do(world,
@@ -184,7 +184,7 @@ public class MineWand extends WandItem {
 						 * Block.blocksList[blockAt].dropBlockAsItem_do(world,
 						 * X, Y, Z, new ItemStack(blockAt, 1, 0)); }else{
 						 */
-						blockAt.func_149636_a(world, entityplayer, X, Y, Z, metaAt);
+						blockAt.harvestBlock(world, entityplayer, X, Y, Z, metaAt);
 						// }
 						if (rand.nextInt(blocks2Dig / 50 + 1) == 0)
 							particles(world, X, Y, Z, 1);

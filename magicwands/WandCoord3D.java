@@ -27,7 +27,7 @@ public class WandCoord3D {
 
     public WandCoord3D(int i, int j, int k, int ID, int met) {
         this(i,j,k,met);
-        id = Block.func_149729_e(ID);
+        id = Block.getBlockById(ID);
     }
 
 	public WandCoord3D(WandCoord3D a) {
@@ -73,7 +73,7 @@ public class WandCoord3D {
 		if (!compound.hasKey("Coord3d")) {
 			compound.setTag("Coord3d", new NBTTagCompound());
 		}
-		compound.getCompoundTag("Coord3d").setIntArray(key, new int[] { x, y, z, Block.func_149682_b(id), meta });
+		compound.getCompoundTag("Coord3d").setIntArray(key, new int[] { x, y, z, Block.getIdFromBlock(id), meta });
 	}
 
 	public static void findEnds(WandCoord3D a, WandCoord3D b) {

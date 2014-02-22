@@ -127,7 +127,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
+					entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -137,7 +137,7 @@ public class BuildWand extends WandItem {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
 							if (canPlace(world, X, Y, Z, id, keys)) {
-								world.func_147465_d(X, Y, Z, id, meta, 3);
+								world.setBlock(X, Y, Z, id, meta, 3);
 								if (rand.nextInt(neededItems / 50 + 1) == 0)
 									particles(world, X, Y, Z, 0);
 								affected++;
@@ -153,9 +153,9 @@ public class BuildWand extends WandItem {
 							Y = end.y;
 						for (X = start.x; X <= end.x; X++) {
 							for (Z = start.z; Z <= end.z; Z++) {
-								if (world.func_147439_a(X, Y, Z) == Blocks.dirt
-										&& (world.func_147439_a(X, Y + 1, Z) == Blocks.air || !world.func_147439_a(X, Y + 1, Z).func_149686_d())) {
-									world.func_147449_b(X, Y, Z, Blocks.grass);
+								if (world.getBlock(X, Y, Z) == Blocks.dirt
+										&& (world.getBlock(X, Y + 1, Z) == Blocks.air || !world.getBlock(X, Y + 1, Z).renderAsNormalBlock())) {
+									world.setBlock(X, Y, Z, Blocks.grass);
 								}
 							}
 						}
@@ -181,7 +181,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
+					entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -192,7 +192,7 @@ public class BuildWand extends WandItem {
 						for (Y = start.y; Y <= end.y; Y++) {
 							if (X == start.x || Y == start.y || Z == start.z || X == end.x || Y == end.y || Z == end.z) {
 								if (canPlace(world, X, Y, Z, id, keys)) {
-									world.func_147465_d(X, Y, Z, id, meta, 3);
+									world.setBlock(X, Y, Z, id, meta, 3);
 									if (rand.nextInt(neededItems / 50 + 1) == 0)
 										particles(world, X, Y, Z, 0);
 									affected++;
@@ -209,9 +209,9 @@ public class BuildWand extends WandItem {
 							Y = end.y;
 						for (X = start.x; X <= end.x; X++) {
 							for (Z = start.z; Z <= end.z; Z++) {
-								if (world.func_147439_a(X, Y, Z) == Blocks.dirt
-										&& (world.func_147439_a(X, Y + 1, Z) == Blocks.air || !world.func_147439_a(X, Y + 1, Z).func_149686_d())) {
-									world.func_147449_b(X, Y, Z, Blocks.grass);
+								if (world.getBlock(X, Y, Z) == Blocks.dirt
+										&& (world.getBlock(X, Y + 1, Z) == Blocks.air || !world.getBlock(X, Y + 1, Z).renderAsNormalBlock())) {
+									world.setBlock(X, Y, Z, Blocks.grass);
 								}
 							}
 						}
@@ -239,7 +239,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
+					entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -251,9 +251,9 @@ public class BuildWand extends WandItem {
 							if ((X == start.x && Y == start.y) || (Y == start.y && Z == start.z) || (Z == start.z && X == start.x) || (X == start.x && Y == end.y) || (X == end.x && Y == start.y)
 									|| (Y == start.y && Z == end.z) || (Y == end.y && Z == start.z) || (Z == start.z && X == end.x) || (Z == end.z && X == start.x) || (X == end.x && Y == end.y)
 									|| (Y == end.y && Z == end.z) || (Z == end.z && X == end.x)) {
-								blockAt = world.func_147439_a(X, Y, Z);
+								blockAt = world.getBlock(X, Y, Z);
 								if (canPlace(world, X, Y, Z, id, keys)) {
-									world.func_147465_d(X, Y, Z, id, meta, 3);
+									world.setBlock(X, Y, Z, id, meta, 3);
 									if (rand.nextInt(neededItems / 50 + 1) == 0)
 										particles(world, X, Y, Z, 0);
 									affected++;
@@ -273,9 +273,9 @@ public class BuildWand extends WandItem {
 								if ((X == start.x && Y == start.y) || (Y == start.y && Z == start.z) || (Z == start.z && X == start.x) || (X == start.x && Y == end.y) || (X == end.x && Y == start.y)
 										|| (Y == start.y && Z == end.z) || (Y == end.y && Z == start.z) || (Z == start.z && X == end.x) || (Z == end.z && X == start.x) || (X == end.x && Y == end.y)
 										|| (Y == end.y && Z == end.z) || (Z == end.z && X == end.x)) {
-									if (world.func_147439_a(X, Y, Z) == Blocks.dirt
-											&& (world.func_147439_a(X, Y + 1, Z) == Blocks.air || !world.func_147439_a(X, Y + 1, Z).func_149686_d())) {
-										world.func_147449_b(X, Y, Z, Blocks.grass);
+									if (world.getBlock(X, Y, Z) == Blocks.dirt
+											&& (world.getBlock(X, Y + 1, Z) == Blocks.air || !world.getBlock(X, Y + 1, Z).renderAsNormalBlock())) {
+										world.setBlock(X, Y, Z, Blocks.grass);
 									}
 								}
 							}
@@ -293,7 +293,7 @@ public class BuildWand extends WandItem {
 			for (X = start.x; X <= end.x; X += 5) {
 				for (Z = start.z; Z <= end.z; Z += 5) {
 					for (Y = start.y; Y <= end.y; Y++) {
-						blockAt = world.func_147439_a(X, Y, Z);
+						blockAt = world.getBlock(X, Y, Z);
 						if (canPlace(world, X, Y, Z, id, keys)) {
 							neededItems += multiplier;
 						}
@@ -302,7 +302,7 @@ public class BuildWand extends WandItem {
 			}
 			if (neededItems == 0) {
 				if (!world.isRemote)
-					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
+					entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
 				return false;
 			}
 			// consumeItems includes error message
@@ -311,9 +311,9 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X += 5) {
 					for (Z = start.z; Z <= end.z; Z += 5) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.func_147439_a(X, Y, Z);
+							blockAt = world.getBlock(X, Y, Z);
 							if (canPlace(world, X, Y, Z, id, keys)) {
-								world.func_147465_d(X, Y, Z, id, meta, 3);
+								world.setBlock(X, Y, Z, id, meta, 3);
 								particles(world, X, Y, Z, 0);
 								affected++;
 							}
@@ -337,7 +337,7 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.func_147439_a(X, Y, Z);
+							blockAt = world.getBlock(X, Y, Z);
 							if (canAlter(keys, blockAt)) {
 								neededItems++;
 							}
@@ -346,7 +346,7 @@ public class BuildWand extends WandItem {
 				}
 				if (neededItems == 0) {
 					if (!world.isRemote)
-						entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
+						entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
 					return false;
 				}
 			}
@@ -355,9 +355,9 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.func_147439_a(X, Y, Z);
+							blockAt = world.getBlock(X, Y, Z);
 							if (canAlter(keys, blockAt)) {
-								world.func_147449_b(X, Y, Z, Blocks.flowing_water);
+								world.setBlock(X, Y, Z, Blocks.flowing_water);
 								affected++;
 							}
 						}
@@ -369,10 +369,10 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.func_147439_a(X, Y, Z);
+							blockAt = world.getBlock(X, Y, Z);
 							if (blockAt == Blocks.flowing_water) {
-								world.func_147444_c(X, Y, Z, Blocks.flowing_water);
-								if (world.func_147437_c(X, Y + 1, Z))
+								world.notifyBlockChange(X, Y, Z, Blocks.flowing_water);
+								if (world.isAirBlock(X, Y + 1, Z))
 									particles(world, X, Y, Z, 2);
 							}
 						}
@@ -396,7 +396,7 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.func_147439_a(X, Y, Z);
+							blockAt = world.getBlock(X, Y, Z);
 							if (canAlter(keys, blockAt))
 								neededItems++;
 						}
@@ -404,7 +404,7 @@ public class BuildWand extends WandItem {
 				}
 				if (neededItems == 0) {
 					if (!world.isRemote)
-						entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nowork"));
+						entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
 					return false;
 				}
 			}
@@ -413,9 +413,9 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.func_147439_a(X, Y, Z);
+							blockAt = world.getBlock(X, Y, Z);
 							if (canAlter(keys, blockAt)) {
-								world.func_147449_b(X, Y, Z, Blocks.flowing_lava);
+								world.setBlock(X, Y, Z, Blocks.flowing_lava);
 								affected++;
 							}
 						}
@@ -427,9 +427,9 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X++) {
 					for (Z = start.z; Z <= end.z; Z++) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.func_147439_a(X, Y, Z);
+							blockAt = world.getBlock(X, Y, Z);
 							if (blockAt == Blocks.flowing_lava) {
-								world.func_147444_c(X, Y, Z, Blocks.flowing_lava);
+								world.notifyBlockChange(X, Y, Z, Blocks.flowing_lava);
 							}
 						}
 					}
@@ -450,7 +450,7 @@ public class BuildWand extends WandItem {
 				for (Z = start.z; Z <= end.z; Z++) {
 					underground = false;
 					for (Y = 127; Y > 1; Y--) {
-						blockAt = world.func_147439_a(X, Y, Z);
+						blockAt = world.getBlock(X, Y, Z);
 						boolean surfaceBlock = isSurface(blockAt);
 						if (!underground && surfaceBlock) {
 							underground = true;
@@ -460,7 +460,7 @@ public class BuildWand extends WandItem {
 							continue;
 						}
 						if (canAlter(keys, blockAt)) {
-							world.func_147449_b(X, Y, Z, Blocks.stone);
+							world.setBlock(X, Y, Z, Blocks.stone);
 							cnt++;
 						}
 					}
@@ -468,11 +468,11 @@ public class BuildWand extends WandItem {
 			}
 			if (cnt > 0) {
 				if (!world.isRemote)
-					entityplayer.func_146105_b(new ChatComponentText(cnt + StatCollector.translateToLocal("result.wand.fill")));
+					entityplayer.addChatComponentMessage(new ChatComponentText(cnt + StatCollector.translateToLocal("result.wand.fill")));
 				return true;
 			} else {
 				if (!world.isRemote)
-					entityplayer.func_146105_b(new ChatComponentTranslation("message.wand.nocave"));
+					entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nocave"));
 				return false;
 			}
 		} // end of the long switch

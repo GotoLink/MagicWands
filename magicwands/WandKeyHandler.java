@@ -28,12 +28,12 @@ public class WandKeyHandler {
 	public void keyDown(InputEvent.KeyInputEvent event) {
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         if (player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof WandItem) {
-            if (help.func_151470_d()) {
+            if (help.getIsKeyPressed()) {
                 printHelp(player, (WandItem) player.getCurrentEquippedItem().getItem());
                 return;
             }
-            int keys = (key_1.func_151470_d()?100:0) + (key_2.func_151470_d() ? 10 : 0) + (key_3.func_151470_d() ? 1 : 0);
-            MagicWands.channel.sendToServer(new WandKeyPacket(player.func_145782_y(), keys).getPacket(Side.SERVER));
+            int keys = (key_1.getIsKeyPressed()?100:0) + (key_2.getIsKeyPressed() ? 10 : 0) + (key_3.getIsKeyPressed() ? 1 : 0);
+            MagicWands.channel.sendToServer(new WandKeyPacket(player.getEntityId(), keys).getPacket(Side.SERVER));
         }
 	}
 
@@ -41,33 +41,33 @@ public class WandKeyHandler {
 	public void printHelp(EntityPlayer player, WandItem wand) {
 		if (wand instanceof BuildWand) {
 			addChatMessage(player, "=== " + StatCollector.translateToLocal(wand.reinforced ? "item.rbuwand.name" : "item.buwand.name") + " ===");
-			addChatMessage(player, Keyboard.getKeyName(key_1.func_151463_i()) + " - " + StatCollector.translateToLocal("help.build.key1"));
-			addChatMessage(player, Keyboard.getKeyName(key_2.func_151463_i()) + " - " + StatCollector.translateToLocal("help.build.key2"));
-			addChatMessage(player, Keyboard.getKeyName(key_3.func_151463_i()) + " - " + StatCollector.translateToLocal("help.build.key3"));
+			addChatMessage(player, Keyboard.getKeyName(key_1.getKeyCode()) + " - " + StatCollector.translateToLocal("help.build.key1"));
+			addChatMessage(player, Keyboard.getKeyName(key_2.getKeyCode()) + " - " + StatCollector.translateToLocal("help.build.key2"));
+			addChatMessage(player, Keyboard.getKeyName(key_3.getKeyCode()) + " - " + StatCollector.translateToLocal("help.build.key3"));
 			if (wand.reinforced) {
-				addChatMessage(player, Keyboard.getKeyName(key_1.func_151463_i()) + "+" + Keyboard.getKeyName(key_2.func_151463_i()) + " - " + StatCollector.translateToLocal("help.rbuild.key1.2"));
-				addChatMessage(player, Keyboard.getKeyName(key_1.func_151463_i()) + "+" + Keyboard.getKeyName(key_2.func_151463_i()) + "+" + Keyboard.getKeyName(key_3.func_151463_i()) + " - "
+				addChatMessage(player, Keyboard.getKeyName(key_1.getKeyCode()) + "+" + Keyboard.getKeyName(key_2.getKeyCode()) + " - " + StatCollector.translateToLocal("help.rbuild.key1.2"));
+				addChatMessage(player, Keyboard.getKeyName(key_1.getKeyCode()) + "+" + Keyboard.getKeyName(key_2.getKeyCode()) + "+" + Keyboard.getKeyName(key_3.getKeyCode()) + " - "
                         + StatCollector.translateToLocal("help.rbuild.key1.2.3"));
 			}
-			addChatMessage(player, Keyboard.getKeyName(key_1.func_151463_i()) + "+" + Keyboard.getKeyName(key_3.func_151463_i()) + " - " + StatCollector.translateToLocal("help.build.key1.3"));
+			addChatMessage(player, Keyboard.getKeyName(key_1.getKeyCode()) + "+" + Keyboard.getKeyName(key_3.getKeyCode()) + " - " + StatCollector.translateToLocal("help.build.key1.3"));
 			if (wand.reinforced) {
-				addChatMessage(player, Keyboard.getKeyName(key_2.func_151463_i()) + "+" + Keyboard.getKeyName(key_3.func_151463_i()) + " - " + StatCollector.translateToLocal("help.rbuild.key2.3"));
+				addChatMessage(player, Keyboard.getKeyName(key_2.getKeyCode()) + "+" + Keyboard.getKeyName(key_3.getKeyCode()) + " - " + StatCollector.translateToLocal("help.rbuild.key2.3"));
 			}
 		} else if (wand instanceof BreakWand) {
 			addChatMessage(player, "=== " + StatCollector.translateToLocal(wand.reinforced ? "item.rbrwand.name" : "item.brwand.name") + " ===");
-			addChatMessage(player, Keyboard.getKeyName(key_1.func_151463_i()) + " - " + StatCollector.translateToLocal("help.break.key1"));
-			addChatMessage(player, Keyboard.getKeyName(key_2.func_151463_i()) + " - " + StatCollector.translateToLocal("help.break.key2"));
-			addChatMessage(player, Keyboard.getKeyName(key_3.func_151463_i()) + " - " + StatCollector.translateToLocal("help.break.key3"));
+			addChatMessage(player, Keyboard.getKeyName(key_1.getKeyCode()) + " - " + StatCollector.translateToLocal("help.break.key1"));
+			addChatMessage(player, Keyboard.getKeyName(key_2.getKeyCode()) + " - " + StatCollector.translateToLocal("help.break.key2"));
+			addChatMessage(player, Keyboard.getKeyName(key_3.getKeyCode()) + " - " + StatCollector.translateToLocal("help.break.key3"));
 		} else if (wand instanceof MineWand) {
 			addChatMessage(player, "=== " + StatCollector.translateToLocal(wand.reinforced ? "item.rmiwand.name" : "item.miwand.name") + " ===");
-			addChatMessage(player, Keyboard.getKeyName(key_1.func_151463_i()) + " - " + StatCollector.translateToLocal("help.mine.key1"));
-			addChatMessage(player, Keyboard.getKeyName(key_2.func_151463_i()) + " - " + StatCollector.translateToLocal("help.mine.key2"));
-			addChatMessage(player, Keyboard.getKeyName(key_3.func_151463_i()) + " - " + StatCollector.translateToLocal("help.mine.key3"));
-			addChatMessage(player, Keyboard.getKeyName(key_1.func_151463_i()) + "+" + Keyboard.getKeyName(key_2.func_151463_i()) + " - " + StatCollector.translateToLocal("help.mine.key1.2"));
+			addChatMessage(player, Keyboard.getKeyName(key_1.getKeyCode()) + " - " + StatCollector.translateToLocal("help.mine.key1"));
+			addChatMessage(player, Keyboard.getKeyName(key_2.getKeyCode()) + " - " + StatCollector.translateToLocal("help.mine.key2"));
+			addChatMessage(player, Keyboard.getKeyName(key_3.getKeyCode()) + " - " + StatCollector.translateToLocal("help.mine.key3"));
+			addChatMessage(player, Keyboard.getKeyName(key_1.getKeyCode()) + "+" + Keyboard.getKeyName(key_2.getKeyCode()) + " - " + StatCollector.translateToLocal("help.mine.key1.2"));
 		}
 	}
 
     public static void addChatMessage(EntityPlayer player, String message){
-        player.func_146105_b(new ChatComponentText(message));
+        player.addChatComponentMessage(new ChatComponentText(message));
     }
 }
