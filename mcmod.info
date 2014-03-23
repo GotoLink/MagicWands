@@ -9,7 +9,7 @@
 "mcversion": $mcversion,
 "url": "http://www.planetminecraft.com/mod/magicwands/",
 "updateUrl": "",
-"authors": ["MightyPork","GotoLink"],
+"authorList": ["MightyPork","GotoLink"],
 "parent":"",
 "screenshots": [],
 "dependencies": []

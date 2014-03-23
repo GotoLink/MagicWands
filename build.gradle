@@ -21,7 +21,7 @@ minecraft {
 }
 version = "1.1.0(1.7.2)"
 archivesBaseName = project.projectDir.name
-sourceSets.main.java{srcDirs project.projectDir.getPath() include("magicwands/**")}
+sourceSets.main.java{srcDirs 'magicwands'}
 sourceSets.main.resources{srcDirs project.projectDir.getPath() include("assets/**" , "*.info", "*.mcmeta")}
 processResources {
     // replace stuff in mcmod.info, nothing else
