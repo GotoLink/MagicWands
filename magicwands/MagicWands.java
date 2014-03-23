@@ -1,10 +1,12 @@
 package magicwands;
 
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.FMLEventChannel;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameData;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -21,6 +23,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 @Mod(modid = "MagicWands", name = "MagicWands", version = "1.1.0")
 public class MagicWands {
+    @Mod.Instance("MagicWands")
+    public static MagicWands INSTANCE;
 	public static boolean bedrock, disableNotify, free, obsidian;
 	public static boolean[] allow = new boolean[3];
 	public static Item Break, Build, Mine, rBreak, rBuild, rMine;
@@ -113,4 +117,9 @@ public class MagicWands {
 	private void registerClientSideThings() {
 		FMLCommonHandler.instance().bus().register(new WandKeyHandler());
 	}
+
+    @SideOnly(Side.CLIENT)
+    public EntityPlayer getPlayer(){
+        return FMLClientHandler.instance().getClient().thePlayer;
+    }
 }
