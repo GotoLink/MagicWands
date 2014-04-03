@@ -13,10 +13,10 @@ import net.minecraft.util.StatCollector;
 import org.lwjgl.input.Keyboard;
 
 public class WandKeyHandler {
-	public static final KeyBinding help = new KeyBinding("Wand_Help", Keyboard.KEY_LCONTROL, "item.special");
-	public static final KeyBinding key_1 = new KeyBinding("Wand_Key_1", Keyboard.KEY_X, "item.special");
-	public static final KeyBinding key_2 = new KeyBinding("Wand_Key_2", Keyboard.KEY_C, "item.special");
-	public static final KeyBinding key_3 = new KeyBinding("Wand_Key_3", Keyboard.KEY_V, "item.special");
+	public static final KeyBinding help = new KeyBinding("Wand_Help", Keyboard.KEY_LCONTROL, "key.categories.item.special");
+	public static final KeyBinding key_1 = new KeyBinding("Wand_Key_1", Keyboard.KEY_X, "key.categories.item.special");
+	public static final KeyBinding key_2 = new KeyBinding("Wand_Key_2", Keyboard.KEY_C, "key.categories.item.special");
+	public static final KeyBinding key_3 = new KeyBinding("Wand_Key_3", Keyboard.KEY_V, "key.categories.item.special");
 
 	public WandKeyHandler() {
 		for(KeyBinding key:new KeyBinding[] { key_1, key_2, key_3, help }){

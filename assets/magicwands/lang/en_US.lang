@@ -8,6 +8,8 @@ item.rbuwand.name=Reinforced Building Wand
 item.rbrwand.name=Reinforced Breaking Wand
 item.rmiwand.name=Reinforced Mining Wand
 
+key.categories.item.special=Special Item Keys
+
 help.build.key1=FULL box
 help.build.key2=EMPTY room
 help.build.key3=FRAME (good for fence)
