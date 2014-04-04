@@ -19,7 +19,7 @@ minecraft {
     version = "1.7.2-10.12.0.1032"
     assetDir = "eclipse/assets"
 }
-version = "1.1.0(1.7.2)"
+version = "1.1.0"
 archivesBaseName = project.projectDir.name
 sourceSets.main.java{srcDirs 'magicwands'}
 sourceSets.main.resources{srcDirs project.projectDir.getPath() include("assets/**" , "*.info", "*.mcmeta")}
@@ -34,4 +34,11 @@ processResources {
     from(project.sourceSets.main.resources.srcDirs) {
         include("assets/**", "*.mcmeta")
     }
+}
+jar {
+    //Keep the jar as clean as possible
+    includeEmptyDirs = false
+    //Append with minecraft version
+    classifier = "("+minecraft.version+")"
+    archiveName = archivesBaseName + "-" + version + classifier+"."+extension
 }

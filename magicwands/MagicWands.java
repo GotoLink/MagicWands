@@ -2,6 +2,7 @@ package magicwands;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.network.FMLEventChannel;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameData;
@@ -21,7 +22,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-@Mod(modid = "MagicWands", name = "MagicWands", version = "1.1.0")
+@Mod(modid = "MagicWands", name = "MagicWands", useMetadata = true)
 public class MagicWands {
     @Mod.Instance("MagicWands")
     public static MagicWands INSTANCE;
@@ -110,6 +111,16 @@ public class MagicWands {
             rMine = new MineWand(true).setUnlocalizedName("rmiwand").setTextureName("MagicWands:rwandmine");
             GameRegistry.registerItem(Mine, "MineWand");
             GameRegistry.registerItem(rMine, "RMineWand");
+        }
+        if(event.getSourceFile().getName().endsWith(".jar") && event.getSide().isClient()){
+            try {
+                Class.forName("mods.mud.ModUpdateDetector").getDeclaredMethod("registerMod", ModContainer.class, String.class, String.class).invoke(null,
+                        FMLCommonHandler.instance().findContainerFor(this),
+                        "https://raw.github.com/GotoLink/MagicWands/master/update.xml",
+                        "https://raw.github.com/GotoLink/MagicWands/master/changelog.md"
+                );
+            } catch (Throwable e) {
+            }
         }
     }
 

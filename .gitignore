@@ -9,3 +9,7 @@
 !assets/*
 !/magicwands/
 !magicwands/*
+!/gradle/
+!gradle*
+!update.xml
+!changelog.md
