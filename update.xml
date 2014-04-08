@@ -1,14 +1,14 @@
 <mod modid="MagicWands">
     <mcVersion version="1.7.2">
         <release type="release" version="1.1.0"
-                 url="http://www.minecraftforum.net/topic/1651891-"
+                 url="http://www.minecraftforum.net/topic/1651891-/#MagicWands"
                  download="http://www.mediafire.com/download/krkciq5lvnhj43c/MagicWands-1.1.0(1.7.2).jar"
                  md5="CA417A2C95F2B2775CAC45667D2E60A1"
                 />
     </mcVersion>
 	<mcVersion version="1.6.4">
         <release type="release" version="1.0.0"
-                 url="http://www.minecraftforum.net/topic/1651891-"
+                 url="http://www.minecraftforum.net/topic/1651891-/#MagicWands"
                  download="http://www.mediafire.com/download/w435s3rmu7weggb/MagicWands_1.0.0(1.6.X).zip"
                  md5="A12B9E8F44C72724981A47C7496B7527"
                 />
