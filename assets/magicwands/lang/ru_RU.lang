@@ -1,0 +1,48 @@
+
+itemGroup.MagicWands=Magic Wands
+
+item.buwand.name=Жезл строительства
+item.brwand.name=Жезл уничтожения
+item.miwand.name=Жезл добычи
+item.rbuwand.name=Усиленный жезл строительства
+item.rbrwand.name=Усиленный жезл уничтожения
+item.rmiwand.name=Усиленный жезл добычи
+
+key.categories.item.special=Специальный предмет
+
+help.build.key1=ПОЛНАЯ коробка
+help.build.key2=ПУСТАЯ комнта
+help.build.key3=РАМКА (хороша для забора)
+help.build.key1.3=ФАКЕЛЫ (анти-монстр)
+help.rbuild.key1.2=строительство ВОДЫ
+help.rbuild.key2.3=заполнение ПЕЩЕР камнем
+help.rbuild.key1.2.3=строительство ЛАВЫ
+
+help.break.key1=ломать всё, кроме РУД
+help.break.key2=ломать ВСЁ
+help.break.key3=удалять ЖИДКОСТИ (лаву, воду) и РАСТЕНИЯ
+
+help.mine.key1=добывать ВСЁ
+help.mine.key2=добывать только ЗЕМЛЮ, ПЕСОК, ГРАВИЙ и т.д.
+help.mine.key3=добывать только ДЕРЕВО
+help.mine.key1.2=добывать РУДЫ на поверхности
+
+message.wand.nowork=Нет работы.
+message.wand.nocave=Пещер не найдено.
+
+result.wand.fill= блоков заполнено камнем.
+result.wand.mine=Руд не найдено.
+
+error.wand.cantbuild=Нельзя построить этот блок!
+error.wand.nostart=Вы не выбрали стартовый блок!
+error.wand.toofar=Это слишком далеко!
+error.wand.toofewitems=К Вас не достаточно предметов
+error.wand.notsamecorner=Вы не можете сделать это! Угловые блоки должны быть одинаковыми.
+
+error.wand.cantfillcave=Вам нужен УСИЛЕННЫЙ жезл для заполнения пещеры!
+error.wand.cantfilllava=Вам нужен УСИЛЕННЫЙ жезл для заполнения лавой!
+error.wand.cantfillwater=Вам нужен УСИЛЕННЫЙ жезл для заполнения водой!
+error.wand.toofewlava=У Вас не хватает вёдер лавы.
+error.wand.toofewwater=Вам нужно два ведра воды.
+
+error.wand.toomanytodig=Слишком много блоков для копания
