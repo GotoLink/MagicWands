@@ -86,11 +86,7 @@ public class BuildWand extends WandItem {
 
 	@Override
 	protected boolean isIncompatibleBlock(Block block) {
-		if (block == Blocks.air || block == Blocks.piston_extension || block == Blocks.piston_head)
-			return true;
-		else {
-			return block instanceof BlockBed || block instanceof BlockDoor || block instanceof BlockSign;
-		}
+		return block == Blocks.air || block == Blocks.piston_extension || block == Blocks.piston_head || block instanceof BlockBed || block instanceof BlockDoor || block instanceof BlockSign;
 	}
 
 	// === BUILDING ===
@@ -102,13 +98,13 @@ public class BuildWand extends WandItem {
 		// );
 		// return false;
 		// }
-		int X = 0, Y = 0, Z = 0;
-        Block blockAt = Blocks.air;
+		int X, Y = 0, Z;
+        Block blockAt;
 		Block id = clicked.id;
 		int meta = clicked.meta;
 		ItemStack neededStack = getNeededItem(id, meta);
 		int multiplier = getNeededCount(id, meta);
-		int neededItems = 0;
+		int neededItems;
 		Item bucket;
 		int affected = 0;
 		boolean FREE = MagicWands.free || entityplayer.capabilities.isCreativeMode;
@@ -138,7 +134,7 @@ public class BuildWand extends WandItem {
 						for (Y = start.y; Y <= end.y; Y++) {
 							if (canPlace(world, X, Y, Z, id, keys)) {
 								world.setBlock(X, Y, Z, id, meta, 3);
-								if (rand.nextInt(neededItems / 50 + 1) == 0)
+								if (itemRand.nextInt(neededItems / 50 + 1) == 0)
 									particles(world, X, Y, Z, 0);
 								affected++;
 							}
@@ -193,7 +189,7 @@ public class BuildWand extends WandItem {
 							if (X == start.x || Y == start.y || Z == start.z || X == end.x || Y == end.y || Z == end.z) {
 								if (canPlace(world, X, Y, Z, id, keys)) {
 									world.setBlock(X, Y, Z, id, meta, 3);
-									if (rand.nextInt(neededItems / 50 + 1) == 0)
+									if (itemRand.nextInt(neededItems / 50 + 1) == 0)
 										particles(world, X, Y, Z, 0);
 									affected++;
 								}
@@ -251,10 +247,9 @@ public class BuildWand extends WandItem {
 							if ((X == start.x && Y == start.y) || (Y == start.y && Z == start.z) || (Z == start.z && X == start.x) || (X == start.x && Y == end.y) || (X == end.x && Y == start.y)
 									|| (Y == start.y && Z == end.z) || (Y == end.y && Z == start.z) || (Z == start.z && X == end.x) || (Z == end.z && X == start.x) || (X == end.x && Y == end.y)
 									|| (Y == end.y && Z == end.z) || (Z == end.z && X == end.x)) {
-								blockAt = world.getBlock(X, Y, Z);
 								if (canPlace(world, X, Y, Z, id, keys)) {
 									world.setBlock(X, Y, Z, id, meta, 3);
-									if (rand.nextInt(neededItems / 50 + 1) == 0)
+									if (itemRand.nextInt(neededItems / 50 + 1) == 0)
 										particles(world, X, Y, Z, 0);
 									affected++;
 								}
@@ -293,7 +288,6 @@ public class BuildWand extends WandItem {
 			for (X = start.x; X <= end.x; X += 5) {
 				for (Z = start.z; Z <= end.z; Z += 5) {
 					for (Y = start.y; Y <= end.y; Y++) {
-						blockAt = world.getBlock(X, Y, Z);
 						if (canPlace(world, X, Y, Z, id, keys)) {
 							neededItems += multiplier;
 						}
@@ -311,7 +305,6 @@ public class BuildWand extends WandItem {
 				for (X = start.x; X <= end.x; X += 5) {
 					for (Z = start.z; Z <= end.z; Z += 5) {
 						for (Y = start.y; Y <= end.y; Y++) {
-							blockAt = world.getBlock(X, Y, Z);
 							if (canPlace(world, X, Y, Z, id, keys)) {
 								world.setBlock(X, Y, Z, id, meta, 3);
 								particles(world, X, Y, Z, 0);
@@ -444,7 +437,7 @@ public class BuildWand extends WandItem {
 				error(entityplayer, clicked, "cantfillcave");
 				return false;
 			}
-			boolean underground = false;
+			boolean underground;
 			long cnt = 0;
 			for (X = start.x; X <= end.x; X++) {
 				for (Z = start.z; Z <= end.z; Z++) {

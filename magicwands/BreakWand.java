@@ -56,7 +56,7 @@ public class BreakWand extends WandItem {
 	// ==== BREAKING ====
 	private boolean do_Breaking(World world, WandCoord3D start, WandCoord3D end, WandCoord3D clicked, int keys, EntityPlayer entityplayer) {
 		int X, Y, Z;
-        Block blockAt = Blocks.air;
+        Block blockAt;
 		// First, see if there's any work to do--count the breakable blocks.
 		// Not entirely sure a pre-count is necessary with a breaking wand.
 		int cnt = 0;
@@ -85,7 +85,7 @@ public class BreakWand extends WandItem {
 							int metaAt = world.getBlockMetadata(X, Y, Z);
 							blockAt.onBlockDestroyedByPlayer(world, X, Y, Z, metaAt);
 							world.setBlockToAir(X, Y, Z);
-							if (rand.nextInt(cnt / 50 + 1) == 0)
+							if (itemRand.nextInt(cnt / 50 + 1) == 0)
 								particles(world, X, Y, Z, 1);
 						}
 					}

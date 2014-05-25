@@ -100,10 +100,10 @@ public class MineWand extends WandItem {
 				return true;
 			}
 			// harvesting the ores
-			boolean underground = false;
+			boolean underground;
 			int surface = 127;
 			long cnt = 0;
-			boolean surfaceBlock = false;
+			boolean surfaceBlock;
 			for (X = start.x; X <= end.x; X++) {
 				for (Z = start.z; Z <= end.z; Z++) {
 					underground = false;
@@ -186,7 +186,7 @@ public class MineWand extends WandItem {
 						 */
 						blockAt.harvestBlock(world, entityplayer, X, Y, Z, metaAt);
 						// }
-						if (rand.nextInt(blocks2Dig / 50 + 1) == 0)
+						if (itemRand.nextInt(blocks2Dig / 50 + 1) == 0)
 							particles(world, X, Y, Z, 1);
 					}
 				}

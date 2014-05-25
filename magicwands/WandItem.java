@@ -16,8 +16,7 @@ import net.minecraft.world.World;
 public abstract class WandItem extends Item {
 	static ArrayList<Block> m_ores = new ArrayList<Block>();
 	static ArrayList<Block> ores = new ArrayList<Block>();
-	public boolean reinforced;
-	static Random rand = new Random();
+	public final boolean reinforced;
 
 	public WandItem(boolean reinforced) {
 		super();
@@ -162,10 +161,10 @@ public abstract class WandItem extends Item {
 		if (canAlter(keys, world.getBlock(i, j, k))) {
 			if (block.canPlaceBlockAt(world, i, j, k))
 				return true;
-			if (block == Blocks.cactus || block == Blocks.reeds || block instanceof BlockFlower) {
+			if (block == Blocks.cactus || block == Blocks.reeds || block == Blocks.redstone_wire || block == Blocks.stone_pressure_plate || block == Blocks.wooden_pressure_plate || block == Blocks.snow) {
 				return false;
 			}
-			if (block == Blocks.redstone_wire || block == Blocks.stone_pressure_plate || block == Blocks.wooden_pressure_plate || block == Blocks.snow || block instanceof BlockTorch) {
+			if (block instanceof BlockTorch || block instanceof BlockFlower) {
 				return false;
 			}
 			return true;
@@ -225,7 +224,6 @@ public abstract class WandItem extends Item {
 		if (!entityplayer.worldObj.isRemote)
 			entityplayer.addChatComponentMessage(new ChatComponentTranslation("error.wand." + reason));
 		particles(entityplayer.worldObj, pos.x, pos.y, pos.z, 3);
-		return;
 	}
 
 	/**
@@ -266,9 +264,9 @@ public abstract class WandItem extends Item {
 			R = 0.8;
 		}
 		for (int l = 0; l < 6; l++) {
-			double d1 = i + rand.nextFloat();
-			double d2 = j + rand.nextFloat();
-			double d3 = k + rand.nextFloat();
+			double d1 = i + itemRand.nextFloat();
+			double d2 = j + itemRand.nextFloat();
+			double d3 = k + itemRand.nextFloat();
 			if (l == 0 && !world.getBlock(i, j + 1, k).isOpaqueCube()) {
 				d2 = j + 1 + d;
 			}
@@ -317,7 +315,7 @@ public abstract class WandItem extends Item {
 				|| id instanceof BlockRedstoneOre || id == Blocks.glowstone || id == Blocks.ice || id == Blocks.snow || id == Blocks.stonebrick) {
 			return new ItemStack(id, 1, meta);
 		} else {
-			return new ItemStack(id.getItemDropped(meta, rand, 0), 1, id.damageDropped(meta));
+			return new ItemStack(id.getItemDropped(meta, itemRand, 0), 1, id.damageDropped(meta));
 		}
 	}
 
