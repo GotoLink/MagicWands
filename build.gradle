@@ -19,7 +19,7 @@ minecraft {
     version = "1.7.10-10.13.0.1208"
     runDir = "eclipse"
 }
-version = "1.1.0"
+version = "1.1.1"
 archivesBaseName = project.projectDir.name
 sourceSets.main.java{srcDirs 'magicwands'}
 sourceSets.main.resources{srcDirs project.projectDir.getPath() include("assets/**" , "*.info", "*.mcmeta")}

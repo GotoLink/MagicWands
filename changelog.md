@@ -1,3 +1,7 @@
+== Magic Wands 1.1.1 ==
+* Added recipe options
+* Made custom keys mergeable with available ones
+
 == Magic Wands 1.1.0 ==
 * Updated to 1.7.2
 * Changed options to use block names
