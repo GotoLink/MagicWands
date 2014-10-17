@@ -13,15 +13,36 @@ import net.minecraft.util.StatCollector;
 import org.lwjgl.input.Keyboard;
 
 public class WandKeyHandler {
-	public static final KeyBinding help = new KeyBinding("Wand_Help", Keyboard.KEY_LCONTROL, "key.categories.item.special");
-	public static final KeyBinding key_1 = new KeyBinding("Wand_Key_1", Keyboard.KEY_X, "key.categories.item.special");
-	public static final KeyBinding key_2 = new KeyBinding("Wand_Key_2", Keyboard.KEY_C, "key.categories.item.special");
-	public static final KeyBinding key_3 = new KeyBinding("Wand_Key_3", Keyboard.KEY_V, "key.categories.item.special");
+	public static KeyBinding help;
+	public static KeyBinding key_1;
+	public static KeyBinding key_2;
+	public static KeyBinding key_3;
 
 	public WandKeyHandler() {
-		for(KeyBinding key:new KeyBinding[] { key_1, key_2, key_3, help }){
-            ClientRegistry.registerKeyBinding(key);
-        }
+        help = getCompatibleKey("Wand_Help", Keyboard.KEY_LCONTROL, "key.categories.item.special", new KeyMerger() {
+            @Override
+            public boolean canMergeWith(KeyBinding registeredKey) {
+                return (registeredKey.getKeyDescription().contains("help") || registeredKey.getKeyDescription().contains("Help"));
+            }
+        });
+        key_1 = getCompatibleKey("Wand_Key_1", Keyboard.KEY_X, "key.categories.item.special", new KeyMerger() {
+            @Override
+            public boolean canMergeWith(KeyBinding registeredKey) {
+                return registeredKey!=help && registeredKey.getKeyCategory().contains("item");
+            }
+        });
+        key_2 = getCompatibleKey("Wand_Key_2", Keyboard.KEY_C, "key.categories.item.special", new KeyMerger() {
+            @Override
+            public boolean canMergeWith(KeyBinding registeredKey) {
+                return registeredKey!=help && registeredKey!=key_1 && registeredKey.getKeyCategory().contains("item");
+            }
+        });
+        key_3 = getCompatibleKey("Wand_Key_3", Keyboard.KEY_V, "key.categories.item.special", new KeyMerger() {
+            @Override
+            public boolean canMergeWith(KeyBinding registeredKey) {
+                return registeredKey!=help && registeredKey!=key_1 && registeredKey!=key_2 && registeredKey.getKeyCategory().contains("item");
+            }
+        });
 	}
 
 	@SubscribeEvent
@@ -69,5 +90,20 @@ public class WandKeyHandler {
 
     public static void addChatMessage(EntityPlayer player, String message){
         player.addChatComponentMessage(new ChatComponentText(message));
+    }
+
+    public static interface KeyMerger{
+        public boolean canMergeWith(KeyBinding registeredKey);
+    }
+
+    public KeyBinding getCompatibleKey(String name, int keyDefault, String category, KeyMerger merger){
+        for(KeyBinding key:Minecraft.getMinecraft().gameSettings.keyBindings){
+            if(merger.canMergeWith(key)){
+                return key;
+            }
+        }
+        KeyBinding defaultkey = new KeyBinding(name, keyDefault, category);
+        ClientRegistry.registerKeyBinding(defaultkey);
+        return defaultkey;
     }
 }

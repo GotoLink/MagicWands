@@ -1,7 +1,6 @@
 package magicwands;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import net.minecraft.block.*;
 import net.minecraft.entity.player.EntityPlayer;
