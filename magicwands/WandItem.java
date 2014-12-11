@@ -1,7 +1,5 @@
 package magicwands;
 
-import java.util.ArrayList;
-
 import net.minecraft.block.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -11,6 +9,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
 
 public abstract class WandItem extends Item {
 	static ArrayList<Block> m_ores = new ArrayList<Block>();

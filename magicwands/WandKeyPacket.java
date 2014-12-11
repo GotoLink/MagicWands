@@ -8,7 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class WandKeyPacket extends MagicWandPacket {
+public final class WandKeyPacket extends MagicWandPacket {
 	int keyCode;
 
 	public WandKeyPacket() {

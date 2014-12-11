@@ -9,16 +9,16 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
-
 import org.lwjgl.input.Keyboard;
 
-public class WandKeyHandler {
-	public static KeyBinding help;
-	public static KeyBinding key_1;
-	public static KeyBinding key_2;
-	public static KeyBinding key_3;
+public final class WandKeyHandler {
+    public static final WandKeyHandler INSTANCE = new WandKeyHandler();
+	private KeyBinding help;
+	private KeyBinding key_1;
+	private KeyBinding key_2;
+	private KeyBinding key_3;
 
-	public WandKeyHandler() {
+	private WandKeyHandler() {
         help = getCompatibleKey("Wand_Help", Keyboard.KEY_LCONTROL, "key.categories.item.special", new KeyMerger() {
             @Override
             public boolean canMergeWith(KeyBinding registeredKey) {

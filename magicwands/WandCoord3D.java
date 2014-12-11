@@ -5,7 +5,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 
-public class WandCoord3D {
+public final class WandCoord3D {
 	public int x, y, z, meta;
     public Block id;
 
