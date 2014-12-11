@@ -6,7 +6,7 @@ import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetHandlerPlayServer;
 
-public class PacketHandler {
+public final class PacketHandler {
     public static final String CHANNEL = "MagicWands:Key";
     @SubscribeEvent
     public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
@@ -31,6 +31,6 @@ public class PacketHandler {
 
     @SubscribeEvent
     public void onClientPacket(FMLNetworkEvent.ClientCustomPacketEvent event){
-        handlePacket(event.packet, MagicWands.INSTANCE.getPlayer());
+        handlePacket(event.packet, MagicWands.proxy.getPlayer());
     }
 }

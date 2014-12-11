@@ -1,11 +1,14 @@
 package magicwands;
 
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.FMLEventChannel;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameData;
+import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -14,18 +17,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @Mod(modid = "MagicWands", name = "MagicWands", useMetadata = true)
-public class MagicWands {
+public final class MagicWands {
     @Mod.Instance("MagicWands")
     public static MagicWands INSTANCE;
+    @SidedProxy(modId = "MagicWands", clientSide = "magicwands.ClientProxy", serverSide = "magicwands.ServerProxy")
+    public static IProxy proxy;
 	public static boolean bedrock, disableNotify, free, obsidian;
 	public static boolean[] allow = new boolean[3];
     public static boolean[] recipe = new boolean[3];
@@ -61,9 +59,7 @@ public class MagicWands {
                     WandItem.m_ores.add(GameData.getBlockRegistry().getObject(u));
 			}
 		}
-		if (event.getSide().isClient()) {
-			registerClientSideThings();
-		}
+		proxy.register();
         channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(PacketHandler.CHANNEL);
         channel.register(new PacketHandler());
 	}
@@ -71,7 +67,6 @@ public class MagicWands {
 	@EventHandler
 	public void preload(FMLPreInitializationEvent event) {
 		Configuration conf = new Configuration(event.getSuggestedConfigurationFile());
-		conf.load();
 		int i = 0;
 		for (String s : new String[] { "Building_Wands", "Breaking_Wands", "Mining_Wands" }) {
 			allow[i] = conf.get("Safety", "Enable_" + s, true).getBoolean();
@@ -126,25 +121,16 @@ public class MagicWands {
             GameRegistry.registerItem(Mine, "MineWand");
             GameRegistry.registerItem(rMine, "RMineWand");
         }
-        if(event.getSourceFile().getName().endsWith(".jar") && event.getSide().isClient()){
-            try {
-                Class.forName("mods.mud.ModUpdateDetector").getDeclaredMethod("registerMod", ModContainer.class, String.class, String.class).invoke(null,
-                        FMLCommonHandler.instance().findContainerFor(this),
-                        "https://raw.github.com/GotoLink/MagicWands/master/update.xml",
-                        "https://raw.github.com/GotoLink/MagicWands/master/changelog.md"
-                );
-            } catch (Throwable e) {
-            }
+        if(event.getSourceFile().getName().endsWith(".jar")){
+            proxy.trySendUpdate();
         }
     }
 
-	@SideOnly(Side.CLIENT)
-	private void registerClientSideThings() {
-		FMLCommonHandler.instance().bus().register(new WandKeyHandler());
-	}
+    public interface IProxy{
+        public EntityPlayer getPlayer();
 
-    @SideOnly(Side.CLIENT)
-    public EntityPlayer getPlayer(){
-        return FMLClientHandler.instance().getClient().thePlayer;
+        public void register();
+
+        public void trySendUpdate();
     }
 }
