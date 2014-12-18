@@ -23,7 +23,7 @@ public class ClientProxy implements MagicWands.IProxy{
     public void trySendUpdate() {
         try {
             Class.forName("mods.mud.ModUpdateDetector").getDeclaredMethod("registerMod", ModContainer.class, String.class, String.class).invoke(null,
-                    FMLCommonHandler.instance().findContainerFor(this),
+                    FMLCommonHandler.instance().findContainerFor(MagicWands.INSTANCE),
                     "https://raw.github.com/GotoLink/MagicWands/master/update.xml",
                     "https://raw.github.com/GotoLink/MagicWands/master/changelog.md"
             );
