@@ -10,34 +10,34 @@ item.rmiwand.name=Reinforced Mining Wand
 
 key.categories.item.special=Special Item Keys
 
-help.build.key1=FULL box
-help.build.key2=EMPTY room
-help.build.key3=FRAME (good for fence)
+help.build.key1=%s - FULL box
+help.build.key2=%s - EMPTY room
+help.build.key3=%s - FRAME (good for fence)
 help.build.key1.3=TORCHES (anti-monster)
 help.rbuild.key1.2=building WATER
 help.rbuild.key2.3=filling CAVES with stone
 help.rbuild.key1.2.3=building LAVA
 
-help.break.key1=break all but ORES
-help.break.key2=break ALL
-help.break.key3=remove LIQUIDS (lava, water) and PLANTS
+help.break.key1=%s - break all but ORES
+help.break.key2=%s - break ALL
+help.break.key3=%s - remove LIQUIDS (lava, water) and PLANTS
 
-help.mine.key1=mine ALL
-help.mine.key2=mine only DIRT, SAND, GRAVEL etc.
-help.mine.key3=mine only WOOD
+help.mine.key1=%s - mine ALL
+help.mine.key2=%s - mine only DIRT, SAND, GRAVEL etc.
+help.mine.key3=%s - mine only WOOD
 help.mine.key1.2=mining ORES from surface
 
 message.wand.nowork=No work to do.
 message.wand.nocave=No caves were found.
 
-result.wand.fill= blocks filled up with stone.
+result.wand.fill=%d blocks filled up with stone.
 result.wand.mine=No ores found.
 
 error.wand.cantbuild=Can't build this block!
 error.wand.nostart=You didn't select the starting block!
 error.wand.toofar=That's too far!
-error.wand.toofewitems=You don't have enough items
-error.wand.notsamecorner=You can't do this! Corner blocks must be the same.
+error.wand.toofewitems=You don't have enough items, needed %d, you have %d in inventory.
+error.wand.notsamecorner=You can't do this! Corner blocks must be the same type.
 
 error.wand.cantfillcave=You need REINFORCED wand for cave filling!
 error.wand.cantfilllava=You need REINFORCED wand for lava filling!
@@ -45,4 +45,4 @@ error.wand.cantfillwater=You need REINFORCED wand for water filling!
 error.wand.toofewlava=You don't have enough lava buckets.
 error.wand.toofewwater=You need two buckets of water.
 
-error.wand.toomanytodig=Too many blocks to dig
+error.wand.toomanytodig=Too many blocks to dig, had %d, limit is %d.
