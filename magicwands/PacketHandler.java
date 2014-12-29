@@ -8,9 +8,10 @@ import net.minecraft.network.NetHandlerPlayServer;
 
 public final class PacketHandler {
     public static final String CHANNEL = "MagicWands:Key";
+
     @SubscribeEvent
     public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
-        event.reply = handlePacket(event.packet, ((NetHandlerPlayServer)event.handler).playerEntity);
+        event.reply = handlePacket(event.packet, ((NetHandlerPlayServer) event.handler).playerEntity);
     }
 
     private FMLProxyPacket handlePacket(FMLProxyPacket packet, EntityPlayer player) {
@@ -18,10 +19,10 @@ public final class PacketHandler {
         if (packet.channel().equals(CHANNEL)) {
             pkt = new WandKeyPacket();
         }
-        if(pkt!=null){
+        if (pkt != null) {
             pkt.fromBytes(packet.payload());
-            FMLProxyPacket result =  pkt.run(player);
-            if(result!=null){
+            FMLProxyPacket result = pkt.run(player);
+            if (result != null) {
                 result.setDispatcher(packet.getDispatcher());
             }
             return result;
@@ -30,7 +31,7 @@ public final class PacketHandler {
     }
 
     @SubscribeEvent
-    public void onClientPacket(FMLNetworkEvent.ClientCustomPacketEvent event){
+    public void onClientPacket(FMLNetworkEvent.ClientCustomPacketEvent event) {
         handlePacket(event.packet, MagicWands.proxy.getPlayer());
     }
 }

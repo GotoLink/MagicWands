@@ -8,30 +8,30 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
-public abstract class MagicWandPacket implements IMessage{
-	int entityId;
+public abstract class MagicWandPacket implements IMessage {
+    int entityId;
 
-	public final FMLProxyPacket getPacket(Side side) {
+    public final FMLProxyPacket getPacket(Side side) {
         ByteBuf out = Unpooled.buffer();
         toBytes(out);
         FMLProxyPacket packet = new FMLProxyPacket(out, getChannel());
         packet.setTarget(side);
-		return packet;
-	}
+        return packet;
+    }
 
-	abstract FMLProxyPacket execute(Entity entity);
+    abstract FMLProxyPacket execute(Entity entity);
 
-	abstract String getChannel();
+    abstract String getChannel();
 
     public void fromBytes(ByteBuf in) {
-		entityId = in.readInt();
-	}
+        entityId = in.readInt();
+    }
 
-	FMLProxyPacket run(EntityPlayer player) {
-		return execute(player.worldObj.getEntityByID(entityId));
-	}
+    FMLProxyPacket run(EntityPlayer player) {
+        return execute(player.worldObj.getEntityByID(entityId));
+    }
 
     public void toBytes(ByteBuf out) {
-		out.writeInt(entityId);
-	}
+        out.writeInt(entityId);
+    }
 }

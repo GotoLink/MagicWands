@@ -8,7 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 /**
  * Created by Olivier on 30/11/2014.
  */
-public class ClientProxy implements MagicWands.IProxy{
+public class ClientProxy implements MagicWands.IProxy {
     @Override
     public EntityPlayer getPlayer() {
         return FMLClientHandler.instance().getClient().thePlayer;

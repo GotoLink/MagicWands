@@ -5,7 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 /**
  * Created by Olivier on 30/11/2014.
  */
-public class ServerProxy implements MagicWands.IProxy{
+public class ServerProxy implements MagicWands.IProxy {
     @Override
     public EntityPlayer getPlayer() {
         return null;
