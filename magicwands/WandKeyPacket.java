@@ -1,12 +1,11 @@
 package magicwands;
 
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
-import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraftforge.fml.relauncher.Side;
 
 public final class WandKeyPacket extends MagicWandPacket {
     int keyCode;
@@ -20,20 +19,16 @@ public final class WandKeyPacket extends MagicWandPacket {
     }
 
     @Override
-    FMLProxyPacket execute(Entity entity) {
+    void execute(Entity entity) {
         if (entity instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) entity;
             if (player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof WandItem) {
-                if (!player.getCurrentEquippedItem().hasTagCompound()) {
-                    player.getCurrentEquippedItem().stackTagCompound = new NBTTagCompound();
-                }
-                player.getCurrentEquippedItem().getTagCompound().setInteger("Keys", keyCode);
+                player.getCurrentEquippedItem().setTagInfo("Keys", new NBTTagInt(keyCode));
                 if (player instanceof EntityPlayerMP) {
-                    return getPacket(Side.CLIENT);
+                    MagicWands.channel.sendTo(getPacket(Side.CLIENT), (EntityPlayerMP) player);
                 }
             }
         }
-        return null;
     }
 
     @Override

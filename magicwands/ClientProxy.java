@@ -1,13 +1,12 @@
 package magicwands;
 
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.ModContainer;
+import net.minecraft.client.renderer.ItemModelMesher;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.ModContainer;
 
-/**
- * Created by Olivier on 30/11/2014.
- */
 public class ClientProxy implements MagicWands.IProxy {
     @Override
     public EntityPlayer getPlayer() {
@@ -16,7 +15,18 @@ public class ClientProxy implements MagicWands.IProxy {
 
     @Override
     public void register() {
+        ItemModelMesher mesher = FMLClientHandler.instance().getClient().getRenderItem().getItemModelMesher();
+        mesher.register(MagicWands.Break, 0, wand("Break"));
+        mesher.register(MagicWands.Build, 0, wand("Build"));
+        mesher.register(MagicWands.Mine, 0, wand("Mine"));
+        mesher.register(MagicWands.rBreak, 0, wand("RBreak"));
+        mesher.register(MagicWands.rBuild, 0, wand("RBuild"));
+        mesher.register(MagicWands.rMine, 0, wand("RMine"));
         FMLCommonHandler.instance().bus().register(WandKeyHandler.INSTANCE);
+    }
+
+    private ModelResourceLocation wand(String name){
+        return new ModelResourceLocation("magicwands:" + name + "Wand", "inventory");
     }
 
     @Override
@@ -29,5 +39,10 @@ public class ClientProxy implements MagicWands.IProxy {
             );
         } catch (Throwable e) {
         }
+    }
+
+    @Override
+    public void scheduleTask(Runnable runner){
+        FMLClientHandler.instance().getClient().addScheduledTask(runner);
     }
 }

@@ -4,8 +4,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockFlower;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
@@ -36,14 +39,10 @@ public class MineWand extends WandItem {
     }
 
     @Override
-    public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, Block idOrig, Block id, int meta) {
-        if (MagicWands.disableNotify)
-            world.scheduledUpdatesAreImmediate = true; // scheduledUpdatesAreImmediate
+    public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, IBlockState idOrig, IBlockState id) {
         boolean damage = do_Mining(world, start, end, clicked_current, keys, entityplayer);
         if (damage)
             world.playSoundEffect(clicked_current.x, clicked_current.y, clicked_current.z, "random.explode", 2.5F, 0.5F + world.rand.nextFloat() * 0.3F);
-        if (MagicWands.disableNotify)
-            world.scheduledUpdatesAreImmediate = false;
         return damage;
     }
 
@@ -68,33 +67,36 @@ public class MineWand extends WandItem {
 
     // ==== MINING ====
     private boolean do_Mining(World world, WandCoord3D start, WandCoord3D end, WandCoord3D clicked, int keys, EntityPlayer entityplayer) {
-        int X, Y, Z, metaAt;
+        // MINING OBSIDIAN 1x1x1
+        BlockPos startPos = start.toPos();
+        BlockPos endPos = end.toPos();
+        if (keys == MINE_ALL && startPos.equals(endPos) && !MagicWands.obsidian) {
+            IBlockState state = world.getBlockState(startPos);
+            if (state.getBlock() == Blocks.obsidian){
+                Blocks.obsidian.onBlockDestroyedByPlayer(world, startPos, state);
+                Blocks.obsidian.harvestBlock(world, entityplayer, startPos, state, world.getTileEntity(startPos));
+                particles(world, startPos, 1);
+                return true;
+            }
+        }
+        int X, Y, Z;
+        IBlockState metaAt;
         Block blockAt;
         int blocks2Dig = 0;
-        // MINING OBSIDIAN 1x1x1
-        if (keys == MINE_ALL && start.x == end.x && start.y == end.y && start.z == end.z && !MagicWands.obsidian && world.getBlock(start.x, start.y, start.z) == Blocks.obsidian) {
-            Blocks.obsidian.onBlockDestroyedByPlayer(world, start.x, start.y, start.z, 0);
-            Blocks.obsidian.harvestBlock(world, entityplayer, start.x, start.y, start.z, 0);
-            particles(world, start.x, start.y, start.z, 1);
-            return true;
-        }
         boolean FREE = MagicWands.free || entityplayer.capabilities.isCreativeMode;
         int max = (reinforced || FREE) ? 1024 : 512;
         // MINING ORES
         if (keys == MINE_ORES) {
             // counting ores to mine
-            for (X = start.x; X <= end.x; X++) {
-                for (Y = 1; Y < 128; Y++) {
-                    for (Z = start.z; Z <= end.z; Z++) {
-                        blockAt = world.getBlock(X, Y, Z);
-                        if (isMiningOre(blockAt)) {
-                            // add more drops for redstone and lapis
-                            if (blockAt == Blocks.redstone_ore || blockAt == Blocks.lit_redstone_ore || blockAt == Blocks.lapis_ore) {
-                                blocks2Dig += 4;
-                            } else {
-                                blocks2Dig++;
-                            }
-                        }
+            Iterable iterable = BlockPos.getAllInBox(new BlockPos(start.x, 1, start.z), new BlockPos(end.x, 128, end.z));
+            for (Object object : iterable) {
+                blockAt = world.getBlockState((BlockPos)object).getBlock();
+                if (isMiningOre(blockAt)) {
+                    // add more drops for redstone and lapis
+                    if (blockAt == Blocks.redstone_ore || blockAt == Blocks.lit_redstone_ore || blockAt == Blocks.lapis_ore) {
+                        blocks2Dig += 4;
+                    } else {
+                        blocks2Dig++;
                     }
                 }
             }
@@ -107,23 +109,27 @@ public class MineWand extends WandItem {
             int surface = 127;
             long cnt = 0;
             boolean surfaceBlock;
+            BlockPos pos;
             for (X = start.x; X <= end.x; X++) {
                 for (Z = start.z; Z <= end.z; Z++) {
                     underground = false;
                     for (Y = 127; Y > 1; Y--) {
-                        blockAt = world.getBlock(X, Y, Z);
-                        if (!underground && world.isAirBlock(X, Y, Z)) {
+                        pos = new BlockPos(X, Y, Z);
+                        metaAt = world.getBlockState(pos);
+                        if (!underground && world.isAirBlock(pos)) {
                             surface = Y;
                         }
-                        surfaceBlock = isSurface(blockAt);
+                        surfaceBlock = isSurface(metaAt.getBlock());
                         if (!underground && surfaceBlock)
                             underground = true;
-                        if (isMiningOre(blockAt)) {
-                            metaAt = world.getBlockMetadata(X, Y, Z);
-                            world.setBlock(X, Y, Z, Blocks.stone);
-                            blockAt.onBlockDestroyedByPlayer(world, X, surface, Z, metaAt);
-                            blockAt.harvestBlock(world, entityplayer, X, surface, Z, metaAt);
-                            cnt++;
+                        if (isMiningOre(metaAt.getBlock())){
+                            TileEntity tile = world.getTileEntity(pos);
+                            if(world.setBlockState(pos, Blocks.stone.getDefaultState())) {
+                                pos = new BlockPos(X, surface, Z);
+                                metaAt.getBlock().onBlockDestroyedByPlayer(world, pos, metaAt);
+                                metaAt.getBlock().harvestBlock(world, entityplayer, pos, metaAt, tile);
+                                cnt++;
+                            }
                         }
                     }
                 }
@@ -136,18 +142,15 @@ public class MineWand extends WandItem {
             return true;
         }
         // NORMAL MINING
-        for (X = start.x; X <= end.x; X++) {
-            for (Y = start.y; Y <= end.y; Y++) {
-                for (Z = start.z; Z <= end.z; Z++) {
-                    blockAt = world.getBlock(X, Y, Z);
-                    if (canAlter(keys, blockAt)) {
-                        // add more drops for redstone and lapis
-                        if (blockAt == Blocks.redstone_ore || blockAt == Blocks.lit_redstone_ore || blockAt == Blocks.lapis_ore) {
-                            blocks2Dig += 4;
-                        } else {
-                            blocks2Dig++;
-                        }
-                    }
+        Iterable iterable = BlockPos.getAllInBox(startPos, endPos.up());
+        for (Object object : iterable) {
+            blockAt = world.getBlockState((BlockPos) object).getBlock();
+            if (canAlter(keys, blockAt)) {
+                // add more drops for redstone and lapis
+                if (blockAt == Blocks.redstone_ore || blockAt == Blocks.lit_redstone_ore || blockAt == Blocks.lapis_ore) {
+                    blocks2Dig += 4;
+                } else {
+                    blocks2Dig++;
                 }
             }
         }
@@ -161,18 +164,16 @@ public class MineWand extends WandItem {
                 entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
             return false;
         }
-        for (X = start.x; X <= end.x; X++) {
-            for (Y = start.y; Y <= end.y; Y++) {
-                for (Z = start.z; Z <= end.z; Z++) {
-                    blockAt = world.getBlock(X, Y, Z);
-                    metaAt = world.getBlockMetadata(X, Y, Z);
-                    if (canAlter(keys, blockAt)) {
-                        world.setBlockToAir(X, Y, Z);
-                        blockAt.onBlockDestroyedByPlayer(world, X, Y, Z, metaAt);
-                        blockAt.harvestBlock(world, entityplayer, X, Y, Z, metaAt);
-                        if (itemRand.nextInt(blocks2Dig / 50 + 1) == 0)
-                            particles(world, X, Y, Z, 1);
-                    }
+        iterable = BlockPos.getAllInBox(startPos, endPos.up());
+        for (Object object : iterable) {
+            metaAt = world.getBlockState((BlockPos) object);
+            if (canAlter(keys, metaAt.getBlock())) {
+                TileEntity tile = world.getTileEntity((BlockPos) object);
+                if(metaAt.getBlock().removedByPlayer(world, (BlockPos) object, entityplayer, true)) {
+                    metaAt.getBlock().onBlockDestroyedByPlayer(world, (BlockPos) object, metaAt);
+                    metaAt.getBlock().harvestBlock(world, entityplayer, (BlockPos) object, metaAt, tile);
+                    if (itemRand.nextInt(blocks2Dig / 50 + 1) == 0)
+                        particles(world, (BlockPos) object, 1);
                 }
             }
         }

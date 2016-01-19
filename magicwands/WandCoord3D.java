@@ -1,41 +1,57 @@
 package magicwands;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 
+import java.util.ArrayList;
+
 public final class WandCoord3D {
-    public int x, y, z, meta;
-    public Block id;
+    public int x, y, z;
+    public IBlockState state;
 
     public WandCoord3D() {
-        this(0, 0, 0, Blocks.air, 0);
+        this(BlockPos.ORIGIN, Blocks.air.getDefaultState());
     }
 
-    public WandCoord3D(int i, int j, int k, int met) {
+    public WandCoord3D(int i, int j, int k) {
         x = i;
         y = j;
         z = k;
-        meta = met;
     }
 
-    public WandCoord3D(int i, int j, int k, Block ID, int met) {
-        this(i, j, k, met);
-        id = ID;
+    public WandCoord3D(BlockPos pos, IBlockState ID) {
+        this(pos.getX(), pos.getY(), pos.getZ());
+        state = ID;
     }
 
     public WandCoord3D(int i, int j, int k, int ID, int met) {
-        this(i, j, k, met);
-        id = Block.getBlockById(ID);
+        this(i, j, k);
+        state = Block.getBlockById(ID).getStateFromMeta(met);
     }
 
     public WandCoord3D(WandCoord3D a) {
-        this(a.x, a.y, a.z, a.id, a.meta);
+        this(a.x, a.y, a.z);
+        state = a.state;
     }
 
     public WandCoord3D copy() {
         return new WandCoord3D(this);
+    }
+
+    public Block id(){
+        return state.getBlock();
+    }
+
+    public int meta(){
+        return id().getMetaFromState(state);
+    }
+
+    public BlockPos toPos(){
+        return new BlockPos(x, y, z);
     }
 
     public int getArea(WandCoord3D b) {
@@ -73,7 +89,7 @@ public final class WandCoord3D {
         if (!compound.hasKey("Coord3d")) {
             compound.setTag("Coord3d", new NBTTagCompound());
         }
-        compound.getCompoundTag("Coord3d").setIntArray(key, new int[]{x, y, z, Block.getIdFromBlock(id), meta});
+        compound.getCompoundTag("Coord3d").setIntArray(key, new int[]{x, y, z, Block.getIdFromBlock(state.getBlock()), state.getBlock().getMetaFromState(state)});
     }
 
     public static void findEnds(WandCoord3D a, WandCoord3D b) {
@@ -108,5 +124,17 @@ public final class WandCoord3D {
             }
         }
         return null;
+    }
+
+    public static Iterable<BlockPos> between(WandCoord3D start, WandCoord3D end){
+        ArrayList<BlockPos> list = new ArrayList<BlockPos>(getArea(start, end));
+        for (int X = start.x; X <= end.x; X++) {
+            for (int Z = start.z; Z <= end.z; Z++) {
+                for (int Y = start.y; Y <= end.y; Y++) {
+                    list.add(new BlockPos(X, Y, Z));
+                }
+            }
+        }
+        return list;
     }
 }

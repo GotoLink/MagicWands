@@ -1,15 +1,19 @@
 package magicwands;
 
-import cpw.mods.fml.common.registry.GameData;
 import net.minecraft.block.*;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.GameData;
 
 import java.util.ArrayList;
 
@@ -46,13 +50,12 @@ public abstract class WandItem extends Item {
      * @param keys            type of magic, as key combination
      * @param idOrig          the original current block
      * @param id              the modified current block
-     * @param meta            the current block metadata
      * @return true if something changed, thus damaging the wand
      */
-    public abstract boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, Block idOrig, Block id, int meta);
+    public abstract boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, IBlockState idOrig, IBlockState id);
 
     /**
-     * Used by {@link #particles(World, WandCoord3D, int)} when effect type is 0
+     * Used by {@link #particles(World, BlockPos, int)} when effect type is 0
      *
      * @return array of R,G,B
      */
@@ -77,49 +80,51 @@ public abstract class WandItem extends Item {
     }
 
     @Override
-    public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int i, int j, int k, int l, float par8, float par9, float par10) {
-        Block id = world.getBlock(i, j, k);
-        int meta = world.getBlockMetadata(i, j, k);
-        Block idOrig = id;
+    public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
+        IBlockState id = world.getBlockState(pos);
+        IBlockState idOrig = id;
         // general changes
-        if (id == Blocks.grass) {
-            id = Blocks.dirt;
+        if (id.getBlock() == Blocks.grass) {
+            int meta = id.getBlock().getMetaFromState(id);
+            id = Blocks.dirt.getStateFromMeta(meta);
         } // Grass->Dirt
-        if (id == Blocks.unlit_redstone_torch) {
-            id = Blocks.redstone_torch;
+        if (id.getBlock() == Blocks.unlit_redstone_torch) {
+            int meta = id.getBlock().getMetaFromState(id);
+            id = Blocks.redstone_torch.getStateFromMeta(meta);
         } // RStorch off->on
-        if (id == Blocks.unpowered_repeater) {
-            id = Blocks.powered_repeater;
+        if (id.getBlock() == Blocks.unpowered_repeater) {
+            int meta = id.getBlock().getMetaFromState(id);
+            id = Blocks.powered_repeater.getStateFromMeta(meta);
         } // repeater off->on
-        WandCoord3D clicked_current = new WandCoord3D(i, j, k, id, meta);
+        WandCoord3D clicked_current = new WandCoord3D(pos, id);
         // invalid blocks for building
-        if (isIncompatibleBlock(id)) {
+        if (isIncompatibleBlock(id.getBlock())) {
             error(entityplayer, clicked_current, "cantbuild");
             return true;
         }
         if (!itemstack.hasTagCompound()) {
-            itemstack.stackTagCompound = new NBTTagCompound();
+            itemstack.setTagCompound(new NBTTagCompound());
         }
-        int keys = itemstack.stackTagCompound.getInteger("Keys");
+        int keys = itemstack.getTagCompound().getInteger("Keys");
         if (keys == 0) {
             // MARKING START BLOCK
-            world.playSoundEffect(i + 0.5F, j + 0.5F, k + 0.5F, id.stepSound.func_150496_b(), (id.stepSound.getVolume() + 1.0F) / 2.0F, id.stepSound.getPitch() * 0.8F);
+            world.playSoundEffect(pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, id.getBlock().stepSound.getPlaceSound(), (id.getBlock().stepSound.getVolume() + 1.0F) / 2.0F, id.getBlock().stepSound.getFrequency() * 0.8F);
             // saving current block info...
-            clicked_current.writeToNBT(itemstack.stackTagCompound, "Start");
+            clicked_current.writeToNBT(itemstack.getTagCompound(), "Start");
             // coloured particles
-            particles(world, clicked_current, 0);
+            particles(world, clicked_current.toPos(), 0);
             // Next use can be target-selection
-            itemstack.stackTagCompound.setBoolean("Started", true);
+            itemstack.getTagCompound().setBoolean("Started", true);
             return true;
         } else {
-            clicked_current.writeToNBT(itemstack.stackTagCompound, "End");
+            clicked_current.writeToNBT(itemstack.getTagCompound(), "End");
             // Some keys pressed - END BLOCK
-            if (!itemstack.stackTagCompound.getBoolean("Started")) {
+            if (!itemstack.getTagCompound().getBoolean("Started")) {
                 error(entityplayer, clicked_current, "nostart");
                 return true;
             }
             // find the smaller coords
-            WandCoord3D Info = WandCoord3D.getFromNBT(itemstack.stackTagCompound, "Start");
+            WandCoord3D Info = WandCoord3D.getFromNBT(itemstack.getTagCompound(), "Start");
             WandCoord3D Start = Info.copy();
             WandCoord3D End = clicked_current.copy();
             WandCoord3D.findEnds(Start, End);
@@ -127,9 +132,9 @@ public abstract class WandItem extends Item {
                 error(entityplayer, clicked_current, "toofar");
                 return true;
             }
-            boolean damage = doMagic(entityplayer, world, Start, End, Info, clicked_current, keys, idOrig, id, meta);
+            boolean damage = doMagic(entityplayer, world, Start, End, Info, clicked_current, keys, idOrig, id);
             if (damage) {
-                itemstack.stackTagCompound.setBoolean("Started", false);
+                itemstack.getTagCompound().setBoolean("Started", false);
                 if (!(MagicWands.free || entityplayer.capabilities.isCreativeMode)) {
                     itemstack.damageItem(1, entityplayer);
                     return true;
@@ -140,17 +145,14 @@ public abstract class WandItem extends Item {
     }
 
     // CLICKED
-    protected boolean canPlace(World world, int i, int j, int k, Block block, int keys) {
-        if (canAlter(keys, world.getBlock(i, j, k))) {
-            if (block.canPlaceBlockAt(world, i, j, k))
+    protected boolean canPlace(World world, BlockPos pos, Block block, int keys) {
+        if (canAlter(keys, world.getBlockState(pos).getBlock())) {
+            if (block.canPlaceBlockAt(world, pos))
                 return true;
             if (block == Blocks.cactus || block == Blocks.reeds || block == Blocks.redstone_wire || block == Blocks.stone_pressure_plate || block == Blocks.wooden_pressure_plate || block == Blocks.snow) {
                 return false;
             }
-            if (block instanceof BlockTorch || block instanceof BlockFlower) {
-                return false;
-            }
-            return true;
+            return !(block instanceof BlockTorch || block instanceof BlockFlower);
         }
         return false;
     }
@@ -225,10 +227,10 @@ public abstract class WandItem extends Item {
     protected void particles(World world, int i, int j, int k, int effect) {
         double d = 0.0625D;
         if (effect == 1) {
-            world.spawnParticle("smoke", i + 0.5D, j + 0.5D, k + 0.5D, 0.0D, 0.0D, 0.0D);
+            world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, i + 0.5D, j + 0.5D, k + 0.5D, 0.0D, 0.0D, 0.0D);
             return;
         } else if (effect == 2) {
-            world.spawnParticle("splash", i + 0.5D, j + 1D, k + 0.5D, 0.0D, 0.0D, 0.0D);
+            world.spawnParticle(EnumParticleTypes.WATER_SPLASH, i + 0.5D, j + 1D, k + 0.5D, 0.0D, 0.0D, 0.0D);
             return;
         }
         double R = 0.0, G = 0.0, B = 0.0;
@@ -245,26 +247,26 @@ public abstract class WandItem extends Item {
             double d1 = i + itemRand.nextFloat();
             double d2 = j + itemRand.nextFloat();
             double d3 = k + itemRand.nextFloat();
-            if (l == 0 && !world.getBlock(i, j + 1, k).isOpaqueCube()) {
+            if (l == 0 && !world.getBlockState(new BlockPos(i, j + 1, k)).getBlock().isOpaqueCube()) {
                 d2 = j + 1 + d;
             }
-            if (l == 1 && !world.getBlock(i, j - 1, k).isOpaqueCube()) {
+            if (l == 1 && !world.getBlockState(new BlockPos(i, j - 1, k)).getBlock().isOpaqueCube()) {
                 d2 = j + 0 - d;
             }
-            if (l == 2 && !world.getBlock(i, j, k + 1).isOpaqueCube()) {
+            if (l == 2 && !world.getBlockState(new BlockPos(i, j, k + 1)).getBlock().isOpaqueCube()) {
                 d3 = k + 1 + d;
             }
-            if (l == 3 && !world.getBlock(i, j, k - 1).isOpaqueCube()) {
+            if (l == 3 && !world.getBlockState(new BlockPos(i, j, k - 1)).getBlock().isOpaqueCube()) {
                 d3 = k + 0 - d;
             }
-            if (l == 4 && !world.getBlock(i + 1, j, k).isOpaqueCube()) {
+            if (l == 4 && !world.getBlockState(new BlockPos(i + 1, j, k)).getBlock().isOpaqueCube()) {
                 d1 = i + 1 + d;
             }
-            if (l == 5 && !world.getBlock(i - 1, j, k).isOpaqueCube()) {
+            if (l == 5 && !world.getBlockState(new BlockPos(i - 1, j, k)).getBlock().isOpaqueCube()) {
                 d1 = i + 0 - d;
             }
             if (d1 < i || d1 > i + 1 || d2 < 0.0D || d2 > j + 1 || d3 < k || d3 > k + 1) {
-                world.spawnParticle("reddust", d1, d2, d3, R, G, B);
+                world.spawnParticle(EnumParticleTypes.REDSTONE, d1, d2, d3, R, G, B);
             }
         }
     }
@@ -272,27 +274,28 @@ public abstract class WandItem extends Item {
     /**
      * @param effect 0 -wand, 1 - smoke, 2 - splash, 3-error
      */
-    protected void particles(World world, WandCoord3D c, int effect) {
-        particles(world, c.x, c.y, c.z, effect);
+    protected void particles(World world, BlockPos c, int effect) {
+        particles(world, c.getX(), c.getY(), c.getZ(), effect);
     }
 
-    public static int getNeededCount(Block id, int meta) {
-        if (id instanceof BlockSlab) {
+    public static int getNeededCount(IBlockState id) {
+        if (id.getBlock() instanceof BlockSlab) {
             return 2;
         } else {
             return 1;
         }
     }
 
-    public static ItemStack getNeededItem(Block id, int meta) {
-        if (id == Blocks.leaves) {
-            return new ItemStack(id, 1, meta & 3);
+    public static ItemStack getNeededItem(IBlockState state) {
+        Block id = state.getBlock();
+        if (id instanceof BlockLeaves) {
+            return new ItemStack(id, 1, id.damageDropped(state));
         } else if (id == Blocks.stone || id == Blocks.coal_ore || id == Blocks.clay || id == Blocks.deadbush || id == Blocks.bookshelf
                 || id == Blocks.fire || id instanceof BlockStairs || id == Blocks.farmland || id == Blocks.diamond_ore || id == Blocks.lapis_ore
                 || id instanceof BlockRedstoneOre || id == Blocks.glowstone || id == Blocks.ice || id == Blocks.snow || id == Blocks.stonebrick) {
-            return new ItemStack(id, 1, meta);
+            return new ItemStack(id, 1, id.getMetaFromState(state));
         } else {
-            return new ItemStack(id.getItemDropped(meta, itemRand, 0), 1, id.damageDropped(meta));
+            return new ItemStack(id.getItemDropped(state, itemRand, 0), 1, id.damageDropped(state));
         }
     }
 

@@ -1,4 +1,11 @@
 <mod modid="MagicWands">
+    <mcVersion version="1.8">
+        <release type="release" version="1.1.1"
+                 url="http://www.minecraftforum.net/topic/1651891-/#MagicWands"
+                 download="http://www.mediafire.com/download/dl8w17jp3smzj2a/MagicWands-1.1.1%281.8%29.jar"
+                 md5="7C1A65876B1D15B5A69966EC6102BF99"
+                />
+    </mcVersion>
     <mcVersion version="1.7.10">
         <release type="release" version="1.1.1"
                  url="http://www.minecraftforum.net/topic/1651891-/#MagicWands"

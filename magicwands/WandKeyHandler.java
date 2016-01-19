@@ -1,14 +1,14 @@
 package magicwands;
 
-import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.InputEvent;
-import cpw.mods.fml.relauncher.Side;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -59,11 +59,11 @@ public final class WandKeyHandler {
     public void keyDown(InputEvent.KeyInputEvent event) {
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         if (player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof WandItem) {
-            if (help.getIsKeyPressed()) {
+            if (help.isKeyDown()) {
                 printHelp(player, (WandItem) player.getCurrentEquippedItem().getItem());
                 return;
             }
-            int keys = (key_1.getIsKeyPressed() ? 100 : 0) + (key_2.getIsKeyPressed() ? 10 : 0) + (key_3.getIsKeyPressed() ? 1 : 0);
+            int keys = (key_1.isKeyDown() ? 100 : 0) + (key_2.isKeyDown() ? 10 : 0) + (key_3.isKeyDown() ? 1 : 0);
             MagicWands.channel.sendToServer(new WandKeyPacket(player.getEntityId(), keys).getPacket(Side.SERVER));
         }
     }

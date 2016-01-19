@@ -1,25 +1,26 @@
 package magicwands;
 
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.relauncher.Side;
 
 public abstract class MagicWandPacket implements IMessage {
     int entityId;
 
     public final FMLProxyPacket getPacket(Side side) {
-        ByteBuf out = Unpooled.buffer();
+        PacketBuffer out = new PacketBuffer(Unpooled.buffer());
         toBytes(out);
         FMLProxyPacket packet = new FMLProxyPacket(out, getChannel());
         packet.setTarget(side);
         return packet;
     }
 
-    abstract FMLProxyPacket execute(Entity entity);
+    abstract void execute(Entity entity);
 
     abstract String getChannel();
 
@@ -27,8 +28,8 @@ public abstract class MagicWandPacket implements IMessage {
         entityId = in.readInt();
     }
 
-    FMLProxyPacket run(EntityPlayer player) {
-        return execute(player.worldObj.getEntityByID(entityId));
+    void run(EntityPlayer player) {
+        execute(player.worldObj.getEntityByID(entityId));
     }
 
     public void toBytes(ByteBuf out) {

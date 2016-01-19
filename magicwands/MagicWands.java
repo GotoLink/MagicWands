@@ -1,20 +1,19 @@
 package magicwands;
 
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.FMLEventChannel;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.FMLEventChannel;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
 @Mod(modid = "MagicWands", name = "MagicWands", version = "${version}")
@@ -87,8 +86,8 @@ public final class MagicWands {
                         return MagicWands.Build;
                     }
                 };
-            Build = new BuildWand(false).setUnlocalizedName("buwand").setTextureName("MagicWands:wandbuild");
-            rBuild = new BuildWand(true).setUnlocalizedName("rbuwand").setTextureName("MagicWands:rwandbuild");
+            Build = new BuildWand(false).setUnlocalizedName("buwand");
+            rBuild = new BuildWand(true).setUnlocalizedName("rbuwand");
             GameRegistry.registerItem(Build, "BuildWand");
             GameRegistry.registerItem(rBuild, "RBuildWand");
         }
@@ -100,8 +99,8 @@ public final class MagicWands {
                         return MagicWands.Break;
                     }
                 };
-            Break = new BreakWand(false).setUnlocalizedName("brwand").setTextureName("MagicWands:wandbreak");
-            rBreak = new BreakWand(true).setUnlocalizedName("rbrwand").setTextureName("MagicWands:rwandbreak");
+            Break = new BreakWand(false).setUnlocalizedName("brwand");
+            rBreak = new BreakWand(true).setUnlocalizedName("rbrwand");
             GameRegistry.registerItem(Break, "BreakWand");
             GameRegistry.registerItem(rBreak, "RBreakWand");
         }
@@ -113,8 +112,8 @@ public final class MagicWands {
                         return MagicWands.Mine;
                     }
                 };
-            Mine = new MineWand(false).setUnlocalizedName("miwand").setTextureName("MagicWands:wandmine");
-            rMine = new MineWand(true).setUnlocalizedName("rmiwand").setTextureName("MagicWands:rwandmine");
+            Mine = new MineWand(false).setUnlocalizedName("miwand");
+            rMine = new MineWand(true).setUnlocalizedName("rmiwand");
             GameRegistry.registerItem(Mine, "MineWand");
             GameRegistry.registerItem(rMine, "RMineWand");
         }
@@ -129,5 +128,7 @@ public final class MagicWands {
         public void register();
 
         public void trySendUpdate();
+
+        public void scheduleTask(Runnable runner);
     }
 }

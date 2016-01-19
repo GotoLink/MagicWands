@@ -1,10 +1,8 @@
 package magicwands;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.MinecraftServer;
 
-/**
- * Created by Olivier on 30/11/2014.
- */
 public class ServerProxy implements MagicWands.IProxy {
     @Override
     public EntityPlayer getPlayer() {
@@ -19,5 +17,10 @@ public class ServerProxy implements MagicWands.IProxy {
     @Override
     public void trySendUpdate() {
 
+    }
+
+    @Override
+    public void scheduleTask(Runnable runner){
+        MinecraftServer.getServer().addScheduledTask(runner);
     }
 }

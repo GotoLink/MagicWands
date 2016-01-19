@@ -1,8 +1,10 @@
 package magicwands;
 
 import net.minecraft.block.*;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
@@ -24,21 +26,17 @@ public class BreakWand extends WandItem {
             case BREAK_ALL:
                 return (block != Blocks.bedrock || MagicWands.bedrock);
             case BREAK_WEAK:
-                return (block == Blocks.snow || block == Blocks.fire || block == Blocks.vine || block instanceof BlockBush || block instanceof BlockLiquid || block instanceof BlockLeavesBase
+                return (block == Blocks.snow || block instanceof BlockFire || block instanceof BlockVine || block instanceof BlockBush || block instanceof BlockLiquid || block instanceof BlockLeavesBase
                 );
         }
         return false;
     }
 
     @Override
-    public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, Block idOrig, Block id, int meta) {
-        if (MagicWands.disableNotify)
-            world.scheduledUpdatesAreImmediate = true;
-        boolean damage = do_Breaking(world, start, end, clicked_current, keys, entityplayer);
+    public boolean doMagic(EntityPlayer entityplayer, World world, WandCoord3D start, WandCoord3D end, WandCoord3D info, WandCoord3D clicked_current, int keys, IBlockState idOrig, IBlockState id) {
+        boolean damage = do_Breaking(world, start, end, keys, entityplayer);
         if (damage)
             world.playSoundEffect(clicked_current.x, clicked_current.y, clicked_current.z, "random.explode", 2.5F, 0.5F + world.rand.nextFloat() * 0.3F);
-        if (MagicWands.disableNotify)
-            world.scheduledUpdatesAreImmediate = false;
         return damage;
     }
 
@@ -53,18 +51,20 @@ public class BreakWand extends WandItem {
     }
 
     // ==== BREAKING ====
-    private boolean do_Breaking(World world, WandCoord3D start, WandCoord3D end, WandCoord3D clicked, int keys, EntityPlayer entityplayer) {
-        int X, Y, Z;
-        Block blockAt;
+    private boolean do_Breaking(World world, WandCoord3D start, WandCoord3D end, int keys, EntityPlayer entityplayer) {
+        IBlockState blockAt;
         // First, see if there's any work to do--count the breakable blocks.
         // Not entirely sure a pre-count is necessary with a breaking wand.
         int cnt = 0;
-        for (X = start.x; X <= end.x; X++) {
-            for (Y = start.y; Y <= end.y; Y++) {
-                for (Z = start.z; Z <= end.z; Z++) {
-                    blockAt = world.getBlock(X, Y, Z);
-                    if (canAlter(keys, blockAt))
-                        cnt++;
+        Iterable<BlockPos> list = WandCoord3D.between(start, end);
+        for(BlockPos pos : list){
+            blockAt = world.getBlockState(pos);
+            if (canAlter(keys, blockAt.getBlock())) {
+                cnt++;
+                if(blockAt.getBlock().removedByPlayer(world, pos, entityplayer, false)) {
+                    blockAt.getBlock().onBlockDestroyedByPlayer(world, pos, blockAt);
+                    if (itemRand.nextInt(cnt / 50 + 1) == 0)
+                        particles(world, pos.getX(), pos.getY(), pos.getZ(), 1);
                 }
             }
         }
@@ -72,20 +72,6 @@ public class BreakWand extends WandItem {
             if (!world.isRemote)
                 entityplayer.addChatComponentMessage(new ChatComponentTranslation("message.wand.nowork"));
             return false;
-        }
-        for (X = start.x; X <= end.x; X++) {
-            for (Y = start.y; Y <= end.y; Y++) {
-                for (Z = start.z; Z <= end.z; Z++) {
-                    blockAt = world.getBlock(X, Y, Z);
-                    if (canAlter(keys, blockAt)) {
-                        int metaAt = world.getBlockMetadata(X, Y, Z);
-                        blockAt.onBlockDestroyedByPlayer(world, X, Y, Z, metaAt);
-                        world.setBlockToAir(X, Y, Z);
-                        if (itemRand.nextInt(cnt / 50 + 1) == 0)
-                            particles(world, X, Y, Z, 1);
-                    }
-                }
-            }
         }
         return true;
     }

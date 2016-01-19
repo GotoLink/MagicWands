@@ -1,33 +1,30 @@
 package magicwands;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 
 public final class PacketHandler {
     public static final String CHANNEL = "MagicWands:Key";
 
     @SubscribeEvent
     public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
-        event.reply = handlePacket(event.packet, ((NetHandlerPlayServer) event.handler).playerEntity);
+        handlePacket(event.packet, ((NetHandlerPlayServer) event.handler).playerEntity);
     }
 
-    private FMLProxyPacket handlePacket(FMLProxyPacket packet, EntityPlayer player) {
-        MagicWandPacket pkt = null;
+    private void handlePacket(final FMLProxyPacket packet, final EntityPlayer player) {
         if (packet.channel().equals(CHANNEL)) {
-            pkt = new WandKeyPacket();
+            final MagicWandPacket pkt = new WandKeyPacket();
+            MagicWands.proxy.scheduleTask(new Runnable(){
+                @Override
+                public void run(){
+                    pkt.fromBytes(packet.payload());
+                    pkt.run(player);
+                }
+            });
         }
-        if (pkt != null) {
-            pkt.fromBytes(packet.payload());
-            FMLProxyPacket result = pkt.run(player);
-            if (result != null) {
-                result.setDispatcher(packet.getDispatcher());
-            }
-            return result;
-        }
-        return null;
     }
 
     @SubscribeEvent
